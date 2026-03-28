@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { deleteMemoryById, isMem0EnabledAsync } from '@/lib/ai/mem0-client'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -13,6 +14,9 @@ interface RouteParams {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
 
     if (!id) {

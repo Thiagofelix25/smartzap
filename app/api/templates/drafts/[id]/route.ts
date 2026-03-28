@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const PatchDraftSchema = z
   .object({
@@ -17,7 +18,10 @@ const PatchDraftSchema = z
   })
   .strict()
 
-export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const { id } = await ctx.params
   try {
     const { data, error } = await supabase
@@ -68,6 +72,9 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
 }
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const { id } = await ctx.params
   try {
     const json = await req.json()
@@ -181,7 +188,10 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   }
 }
 
-export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const { id } = await ctx.params
   try {
     const { error } = await supabase.from('templates').delete().eq('id', id)

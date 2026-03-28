@@ -5,6 +5,7 @@ import { getCalendarConfig, listBusyTimes } from '@/lib/google-calendar'
 import { settingsDb } from '@/lib/supabase-db'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { clampInt, boolFromUnknown } from '@/lib/validation-utils'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
 
@@ -161,6 +162,9 @@ async function getCalendarBookingConfig(): Promise<CalendarBookingConfig> {
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: 'Supabase nao configurado' }, { status: 400 })
     }

@@ -3,8 +3,12 @@ import { supabase } from '@/lib/supabase'
 import { CreateTemplateSchema } from '@/lib/whatsapp/validators/template.schema'
 import { templateService } from '@/lib/whatsapp/template.service'
 import { MetaAPIError } from '@/lib/whatsapp/errors'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
-export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const { id } = await ctx.params
 
   try {

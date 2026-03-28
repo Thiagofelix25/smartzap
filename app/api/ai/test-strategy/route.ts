@@ -6,6 +6,7 @@ import { getAiPromptsConfig } from '@/lib/ai/ai-center-config'
 import { MARKETING_PROMPT } from '@/lib/ai/prompts/marketing'
 import { UTILITY_PROMPT } from '@/lib/ai/prompts/utility'
 import { BYPASS_PROMPT } from '@/lib/ai/prompts/bypass'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // ============================================================================
 // ENDPOINT DE TESTE - Gera templates usando diferentes estratégias
@@ -68,6 +69,9 @@ interface GeneratedTemplate {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
     console.log('[TEST_STRATEGY] Received:', JSON.stringify(body, null, 2))
 

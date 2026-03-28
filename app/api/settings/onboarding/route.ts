@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const KEYS = {
   onboardingCompleted: 'onboarding_completed',
@@ -26,8 +28,11 @@ async function getSettingDirect(key: string): Promise<string | null> {
  * Retorna o status do onboarding (completo + token permanente)
  * SEMPRE busca direto do banco - sem cache
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const [onboardingCompleted, permanentTokenConfirmed] = await Promise.all([
       getSettingDirect(KEYS.onboardingCompleted),
       getSettingDirect(KEYS.permanentTokenConfirmed),
@@ -75,6 +80,9 @@ async function setSettingDirect(key: string, value: string): Promise<void> {
  */
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
     const { onboardingCompleted, permanentTokenConfirmed } = body
 

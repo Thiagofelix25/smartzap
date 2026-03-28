@@ -6,12 +6,17 @@ import {
   toSavedWorkflow,
 } from "@/lib/builder/workflow-db";
 import { validateWorkflowSchema } from "@/lib/shared/workflow-schema";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type RouteParams = {
   params: Promise<{ workflowId: string }>;
 };
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(request: Request, { params }: RouteParams) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { workflowId } = await params;
   const supabase = getSupabaseAdmin();
   if (!supabase) {

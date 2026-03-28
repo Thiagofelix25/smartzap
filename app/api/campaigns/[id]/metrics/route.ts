@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { supabase } from '@/lib/supabase'
 import { campaignDb } from '@/lib/supabase-db'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +41,10 @@ function isMissingTableError(err: any): boolean {
   return msg.includes('does not exist') || msg.includes('relation') && msg.includes('does not exist')
 }
 
-export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const { id } = await ctx.params
   if (!id) return noStoreJson({ error: 'Missing campaign id' }, { status: 400 })
 

@@ -1,4 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -43,7 +45,10 @@ async function probeTable(table: string) {
  * GET /api/debug/supabase-tables
  * Endpoint simples de diagnóstico para ambientes de dev.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const urlInfo = safeUrlHost(process.env.NEXT_PUBLIC_SUPABASE_URL)
   const hasSecretKey = !!process.env.SUPABASE_SECRET_KEY || !!process.env.SUPABASE_SERVICE_ROLE_KEY
   const hasPublishableKey = !!(

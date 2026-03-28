@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { supabase } from '@/lib/supabase'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -52,8 +54,11 @@ export interface AccountAlert {
  * Get active (non-dismissed) account alerts
  * OPTIMIZED: Uses Supabase with caching
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { data, error } = await supabase
       .from('account_alerts')
       .select('*')
@@ -151,6 +156,9 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { type, code, message, details } = await request.json()
 
     if (!type || !message) {
@@ -193,6 +201,9 @@ export async function POST(request: Request) {
  */
 export async function DELETE(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { searchParams } = new URL(request.url)
     const alertId = searchParams.get('id')
     const dismissAll = searchParams.get('all') === 'true'

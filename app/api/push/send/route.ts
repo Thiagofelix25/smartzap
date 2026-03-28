@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { broadcastPushNotification, sendNewMessageNotification, PushPayload } from '@/lib/push-notifications'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 /**
  * POST /api/push/send
@@ -12,6 +14,9 @@ import { broadcastPushNotification, sendNewMessageNotification, PushPayload } fr
  * 2. { title, body, ... } - Para notificação customizada
  */
 export async function POST(request: Request) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   // Verificar autenticação
   const authHeader = request.headers.get('authorization')
   const adminKey = process.env.SMARTZAP_ADMIN_KEY

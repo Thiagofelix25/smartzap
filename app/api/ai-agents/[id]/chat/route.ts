@@ -35,6 +35,7 @@ import {
   hasIndexedContent,
 } from '@/lib/ai/rag-store'
 import type { AIAgent, EmbeddingProvider } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // =============================================================================
 // Types & Schemas
@@ -161,6 +162,9 @@ interface RouteContext {
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const startTime = Date.now()
 
   try {
@@ -441,6 +445,9 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
 // GET: Listar sessões ativas (para debug)
 export async function GET(request: NextRequest, context: RouteContext) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { id: agentId } = await context.params
 
   const agentSessions = Array.from(sessions.entries())
@@ -462,6 +469,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
 // DELETE: Limpar sessão específica
 export async function DELETE(request: NextRequest, context: RouteContext) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { id: agentId } = await context.params
   const { searchParams } = new URL(request.url)
   const sessionId = searchParams.get('sessionId')

@@ -1,10 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { normalizeSubscribedFields, type MetaSubscribedApp } from '@/lib/meta-webhook-subscription'
 import { getVerifyToken } from '@/lib/verify-token'
 import { supabase } from '@/lib/supabase'
 import { getMetaAppCredentials } from '@/lib/meta-app-credentials'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -681,7 +683,10 @@ function summarizeHealthStatus(raw: any) {
  * GET /api/meta/diagnostics
  * Centraliza o diagnóstico (infra + credenciais + Graph API + sinais internos).
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
 	const ts = new Date().toISOString()
 
 	const { webhookUrl, vercelEnv } = computeWebhookUrl()
@@ -1495,7 +1500,10 @@ export async function GET() {
  * POST /api/meta/diagnostics/actions
  * (Reservado para ações futuras.)
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
 	return noStoreJson(
 		{
 			ok: false,

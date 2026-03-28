@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase-server'
 import { cancelDebounce } from '@/lib/ai/agents/chat-agent'
 import type { ConversationMode } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Request body schema
 const handoffSchema = z.object({

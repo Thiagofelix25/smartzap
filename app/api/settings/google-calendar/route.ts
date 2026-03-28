@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { settingsDb } from '@/lib/supabase-db'
 import { getGoogleCalendarCredentialsPublic } from '@/lib/google-calendar'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const CLIENT_ID_KEY = 'googleCalendarClientId'
 const CLIENT_SECRET_KEY = 'googleCalendarClientSecret'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const config = await getGoogleCalendarCredentialsPublic()
     return NextResponse.json(config)
   } catch (error) {
@@ -18,6 +22,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: 'Supabase nao configurado' }, { status: 400 })
     }
@@ -40,8 +47,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: 'Supabase nao configurado' }, { status: 400 })
     }

@@ -1,4 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -11,6 +13,9 @@ import { fetchWithTimeout, safeJson } from '@/lib/server-http'
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
 
     const toRaw = String(body?.to || '')

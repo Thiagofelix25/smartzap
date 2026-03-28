@@ -3,9 +3,11 @@
  * Retorna quais providers de LLM estão disponíveis (têm API key configurada)
  */
 
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { AI_PROVIDERS, type AIProvider } from '@/lib/ai/providers'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Mapeamento de provider para chave de API na tabela settings
 const LLM_API_KEY_MAP: Record<AIProvider, { settingKey: string; envVar: string }> = {
@@ -18,8 +20,11 @@ const LLM_API_KEY_MAP: Record<AIProvider, { settingKey: string; envVar: string }
  * GET /api/ai-agents/llm-providers
  * Retorna lista de providers com status de disponibilidade
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const supabase = getSupabaseAdmin()
     if (!supabase) {
       return NextResponse.json(

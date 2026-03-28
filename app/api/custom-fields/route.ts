@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { customFieldDefDb } from '@/lib/supabase-db'
 import { validateBody, formatZodErrors } from '@/lib/api-validation'
 import { z } from 'zod'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Cache GET requests for 10 minutes - custom fields rarely change
 // POST/PUT/DELETE remain dynamic by default
@@ -18,6 +20,9 @@ const CreateCustomFieldSchema = z.object({
 
 export async function GET(request: Request) {
     try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
         const { searchParams } = new URL(request.url)
         const entityType = (searchParams.get('entityType') as 'contact' | 'deal') || 'contact'
 
@@ -35,6 +40,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
         const body = await request.json()
 
         // Validate

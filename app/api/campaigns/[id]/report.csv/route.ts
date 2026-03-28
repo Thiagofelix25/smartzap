@@ -1,5 +1,7 @@
 import { campaignDb } from '@/lib/supabase-db'
 import { supabase } from '@/lib/supabase'
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,8 +30,11 @@ const safeFilename = (value: string) => {
  * GET /api/campaigns/[id]/report.csv
  * Baixa um relatório CSV com os envios/estados por contato.
  */
-export async function GET(_request: Request, { params }: Params) {
+export async function GET(request: Request, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
 
     const campaign = await campaignDb.getById(id)

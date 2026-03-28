@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { supabase } from '@/lib/supabase'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { fetchWithTimeout } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 interface UsageData {
   vercel: {
@@ -48,7 +50,10 @@ function getStatus(percentage: number): 'ok' | 'warning' | 'critical' {
   return 'ok'
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const usage: UsageData = {
     vercel: {
       functionInvocations: 0,

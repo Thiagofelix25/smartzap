@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { normalizePhoneNumber, validateAnyPhoneNumber } from '@/lib/phone-formatter'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 /**
  * API Route: Test Contact Settings
@@ -12,8 +13,11 @@ import { normalizePhoneNumber, validateAnyPhoneNumber } from '@/lib/phone-format
 
 const SETTING_KEY = 'test_contact'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
         if (!isSupabaseConfigured()) {
             return NextResponse.json(null)
         }
@@ -61,6 +65,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
     try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
         const body = await request.json()
         const { name, phone } = body
 
@@ -113,8 +120,11 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
     try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
         const { error } = await supabase
             .from('settings')
             .delete()

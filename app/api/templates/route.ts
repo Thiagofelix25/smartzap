@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { canonicalTemplateCategory } from '@/lib/template-category'
 import { createHash } from 'crypto'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Cache GET requests for 5 minutes - templates rarely change
 // POST/PUT/DELETE remain dynamic by default
@@ -181,6 +182,9 @@ async function syncTemplatesToLocalDb(templates: ReturnType<typeof fetchTemplate
 
 // GET /api/templates - Busca templates usando credenciais salvas (Supabase/env)
 export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const url = new URL(request.url)
   const source = url.searchParams.get('source')
   if (source === 'local') {
@@ -252,6 +256,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/templates - Busca templates (body opcional; fallback para Supabase/env)
 export async function POST(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   let businessAccountId: string | undefined
   let accessToken: string | undefined
 

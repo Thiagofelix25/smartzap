@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -95,6 +96,9 @@ function buildPrompt(
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const routeEnabled = await isAiRouteEnabled('generateFlowForm')
     if (!routeEnabled) {
       return NextResponse.json(

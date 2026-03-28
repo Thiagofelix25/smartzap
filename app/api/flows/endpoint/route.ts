@@ -25,6 +25,7 @@ import {
 import { handleFlowAction } from '@/lib/whatsapp/flow-endpoint-handlers'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { metaSetEncryptionPublicKey } from '@/lib/meta-flows-api'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const PRIVATE_KEY_SETTING = 'whatsapp_flow_private_key'
 const PUBLIC_KEY_SETTING = 'whatsapp_flow_public_key'
@@ -35,6 +36,9 @@ const KEY_REGEN_COOLDOWN_MS = 10 * 60 * 1000
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
     console.log('[flow-endpoint] 📥 POST received at', new Date().toISOString())
 
@@ -208,7 +212,10 @@ export async function POST(request: NextRequest) {
 /**
  * GET - Health check simples (sem criptografia)
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const privateKey = await settingsDb.get(PRIVATE_KEY_SETTING)
   const configured = !!privateKey
 

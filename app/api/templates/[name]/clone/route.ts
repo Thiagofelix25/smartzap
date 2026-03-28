@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 /**
  * Converte os components do formato Meta API para o formato spec do editor manual.

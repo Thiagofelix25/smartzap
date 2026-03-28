@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { campaignDb, campaignContactDb } from '@/lib/supabase-db'
 import { CreateCampaignSchema, validateBody, formatZodErrors } from '@/lib/api-validation'
 import { Client as QStashClient } from '@upstash/qstash'
 import { fetchWithTimeout, safeText } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Force dynamic - NO caching at all
 export const dynamic = 'force-dynamic'
@@ -21,6 +23,9 @@ const localScheduleRegistry: Map<string, NodeJS.Timeout> =
  */
 export async function GET(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const url = new URL(request.url)
     const limitParam = url.searchParams.get('limit')
     const offsetParam = url.searchParams.get('offset')
@@ -103,6 +108,9 @@ interface CreateCampaignBody {
  */
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
 
     // Validate input

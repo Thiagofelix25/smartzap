@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { settingsDb } from '@/lib/supabase-db'
 import { supabase } from '@/lib/supabase'
 import { isSupabaseConfigured } from '@/lib/supabase'
@@ -11,6 +12,7 @@ import {
 } from '@/lib/ai/ai-center-config'
 import { DEFAULT_WEBHOOK_PATH } from '@/lib/business/settings'
 import type { CalendarBookingConfig, WorkflowExecutionConfig } from '@/types/settings.types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -369,7 +371,10 @@ async function fetchUpstashConfig(): Promise<UpstashConfigData> {
 
 // === MAIN HANDLER ===
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const startTime = Date.now()
 
   try {

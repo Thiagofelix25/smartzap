@@ -15,12 +15,17 @@ import type {
   WorkflowNode,
 } from "@/lib/builder/workflow-store";
 import type { WorkflowVisibility } from "@/lib/builder/api-client";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type RouteParams = {
   params: Promise<{ workflowId: string }>;
 };
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(request: Request, { params }: RouteParams) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { workflowId } = await params;
   const supabase = getSupabaseAdmin();
   if (!supabase) {
@@ -35,6 +40,9 @@ export async function GET(_request: Request, { params }: RouteParams) {
 }
 
 export async function PATCH(request: Request, { params }: RouteParams) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { workflowId } = await params;
   const supabase = getSupabaseAdmin();
   if (!supabase) {
@@ -64,7 +72,10 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   return NextResponse.json(toSavedWorkflow(record));
 }
 
-export async function DELETE(_request: Request, { params }: RouteParams) {
+export async function DELETE(request: Request, { params }: RouteParams) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { workflowId } = await params;
   const supabase = getSupabaseAdmin();
   if (!supabase) {

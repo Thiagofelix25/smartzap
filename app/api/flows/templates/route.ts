@@ -1,11 +1,16 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import { FLOW_TEMPLATES } from '@/lib/flow-templates'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   return NextResponse.json(
     FLOW_TEMPLATES.map((t) => ({
       key: t.key,

@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { settingsDb } from '@/lib/supabase-db'
 import { isSupabaseConfigured } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const SETTINGS_KEYS = {
   enabled: 'helicone_enabled',
@@ -18,8 +19,11 @@ const SETTINGS_KEYS = {
 // GET - Get Helicone configuration
 // =============================================================================
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({
         ok: false,
@@ -59,6 +63,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({
         ok: false,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { getMetaAppCredentials } from '@/lib/meta-app-credentials'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type GraphApiError = {
   message?: string
@@ -186,6 +187,9 @@ function isMaskedToken(token: unknown): boolean {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json().catch(() => ({}))
     const phoneNumberIdInput = (body as any)?.phoneNumberId as string | undefined
     const businessAccountIdInput = (body as any)?.businessAccountId as string | undefined

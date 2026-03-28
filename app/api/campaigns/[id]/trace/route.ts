@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,6 +44,9 @@ function noStoreJson(payload: unknown, init?: { status?: number }) {
 
 export async function GET(request: Request, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id: campaignId } = await params
     if (!campaignId) return noStoreJson({ error: 'campaign id ausente' }, { status: 400 })
 

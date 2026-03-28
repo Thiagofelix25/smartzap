@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const CreateDraftSchema = z.object({
   name: z
@@ -52,8 +53,11 @@ async function generateUniqueName(baseName: string, language: string): Promise<s
   return `${baseName}_${counter}`
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     // Tentativa 1: com filtro de source
     const attempt1 = await supabase
       .from('templates')
@@ -126,6 +130,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const json = await request.json()
     const parsed = CreateDraftSchema.parse(json)
 

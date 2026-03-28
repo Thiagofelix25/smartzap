@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { DEFAULT_MODEL_ID } from '@/lib/ai/model'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Helper to get admin client with null check
 function getClient() {
@@ -54,8 +55,11 @@ const createAgentSchema = z.object({
  * GET /api/ai-agents
  * List all AI agents
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const supabase = getClient()
 
     const { data: agents, error } = await supabase
@@ -88,6 +92,9 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const supabase = getClient()
 
     // Parse request body

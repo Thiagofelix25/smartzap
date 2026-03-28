@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { z } from 'zod'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const BulkDeleteSchema = z.object({
   names: z.array(z.string()).min(1, 'Selecione pelo menos um template')
@@ -13,6 +14,9 @@ const BulkDeleteSchema = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const credentials = await getWhatsAppCredentials()
     
     if (!credentials?.businessAccountId || !credentials?.accessToken) {

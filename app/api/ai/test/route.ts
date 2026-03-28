@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { processChatAgent } from '@/lib/ai/agents/chat-agent'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { ContactStatus, type AIAgent, type InboxConversation, type InboxMessage } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Timeout de 2 minutos (suficiente para testes)
 export const maxDuration = 120
@@ -85,6 +86,9 @@ function validateApiKey(req: NextRequest): boolean {
 // =============================================================================
 
 export async function POST(req: NextRequest) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const startTime = Date.now()
 
   console.log(`🧪 [AI-TEST] ========================================`)

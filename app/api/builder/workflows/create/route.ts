@@ -7,8 +7,13 @@ import {
   toSavedWorkflow,
 } from "@/lib/builder/workflow-db";
 import { validateWorkflowSchema } from "@/lib/shared/workflow-schema";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export async function POST(request: Request) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const supabase = getSupabaseAdmin();
   if (!supabase) {
     return NextResponse.json(

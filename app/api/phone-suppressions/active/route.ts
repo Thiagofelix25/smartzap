@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { z } from 'zod'
 import { validateBody, formatZodErrors } from '@/lib/api-validation'
 import { getActiveSuppressionsByPhone } from '@/lib/phone-suppressions'
 import { normalizePhoneNumber } from '@/lib/phone-formatter'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -22,6 +24,9 @@ const GetActivePhoneSuppressionsSchema = z.object({
  */
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
 
     const validation = validateBody(GetActivePhoneSuppressionsSchema, body)

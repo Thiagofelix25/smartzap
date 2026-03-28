@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { Client } from '@upstash/workflow'
 
 import { supabase } from '@/lib/supabase'
@@ -8,6 +9,7 @@ import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { precheckContactForTemplate } from '@/lib/whatsapp/template-contract'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
 import { createHash } from 'crypto'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -143,8 +145,11 @@ interface ContactRow {
  * POST /api/campaigns/[id]/resend-skipped
  * Revalida os contatos SKIPPED e reenfileira apenas os que ficarem válidos.
  */
-export async function POST(_request: Request, { params }: Params) {
+export async function POST(request: Request, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id: campaignId } = await params
 
     // 1) Carregar campanha (templateName + templateVariables)

@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { campaignDb, campaignFolderDb, campaignTagDb } from '@/lib/supabase-db'
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Force dynamic rendering (no caching)
 export const dynamic = 'force-dynamic'
@@ -15,6 +17,9 @@ interface Params {
  */
 export async function GET(request: Request, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
     const campaign = await campaignDb.getById(id)
 
@@ -71,6 +76,9 @@ export async function GET(request: Request, { params }: Params) {
  */
 export async function PATCH(request: Request, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
     const body = await request.json()
 
@@ -115,6 +123,9 @@ export async function PATCH(request: Request, { params }: Params) {
  */
 export async function DELETE(request: Request, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
     await campaignDb.delete(id)
 

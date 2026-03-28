@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { generateText } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { settingsDb } from '@/lib/supabase-db'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 interface RouteParams {
   params: Promise<{ phone: string }>
@@ -28,6 +29,9 @@ interface MemoryData {
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { phone } = await params
     const body = await request.json()
     const { profile, memories } = body as { profile: ProfileData | null; memories: MemoryData[] }

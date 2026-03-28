@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { campaignDb } from '@/lib/supabase-db'
 import { CampaignStatus } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export async function POST(
   request: NextRequest,

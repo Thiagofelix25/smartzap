@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import crypto from 'crypto'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -351,6 +352,9 @@ function summarizeFlowJson(input: unknown): {
 }
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const { id } = await ctx.params
   let wantsDebug = false
   const debugInfo: Record<string, unknown> = {}

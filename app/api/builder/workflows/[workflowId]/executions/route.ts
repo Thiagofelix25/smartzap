@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type RouteParams = {
   params: Promise<{ workflowId: string }>;
 };
 
-export async function GET(_request: Request, { params }: RouteParams) {
+export async function GET(request: Request, { params }: RouteParams) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { workflowId } = await params;
   const supabase = getSupabaseAdmin();
   if (!supabase) {
@@ -39,11 +44,17 @@ export async function GET(_request: Request, { params }: RouteParams) {
   return NextResponse.json(mapped);
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   return NextResponse.json({ success: true });
 }
 
-export async function DELETE(_request: Request, { params }: RouteParams) {
+export async function DELETE(request: Request, { params }: RouteParams) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { workflowId } = await params;
   const supabase = getSupabaseAdmin();
   if (!supabase) {

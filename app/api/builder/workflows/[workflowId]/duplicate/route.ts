@@ -1,17 +1,21 @@
-import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase";
+import { NextResponse, NextRequest } from "next/server"
+import { getSupabaseAdmin } from "@/lib/supabase"
 import {
   createWorkflowRecord,
   ensureWorkflowRecord,
   getCompanyId,
   toSavedWorkflow,
-} from "@/lib/builder/workflow-db";
+} from "@/lib/builder/workflow-db"
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type RouteParams = {
   params: Promise<{ workflowId: string }>;
 };
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { workflowId } = await params;
   const supabase = getSupabaseAdmin();
   if (!supabase) {

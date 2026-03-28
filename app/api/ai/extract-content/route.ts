@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { validateBody, formatZodErrors } from '@/lib/api-validation'
 import { generateJSON } from '@/lib/ai'
 import { isAiRouteEnabled } from '@/lib/ai/ai-center-config'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 /**
  * POST /api/ai/extract-content
@@ -110,6 +111,9 @@ IMPORTANTE: Retorne APENAS o JSON, sem markdown ou explicações.
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     // Verificar se rota está habilitada
     const routeEnabled = await isAiRouteEnabled('generateUtilityTemplates')
     if (!routeEnabled) {

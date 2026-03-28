@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export async function GET(request: Request) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const supabase = getSupabaseAdmin();
   if (!supabase) {
     return NextResponse.json({ totals: { runs: 0, success: 0, failed: 0 }, byWorkflow: {} });

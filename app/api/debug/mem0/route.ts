@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { settingsDb } from '@/lib/supabase-db'
 import { isSupabaseConfigured } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const runtime = 'nodejs'
 
@@ -10,8 +12,11 @@ const mask = (value: string | null) => {
   return `${value.slice(0, 4)}••••${value.slice(-4)}`
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const supabaseConfigured = isSupabaseConfigured()
     const envMem0Key = process.env.MEM0_API_KEY || null
 

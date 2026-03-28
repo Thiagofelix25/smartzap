@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { templateDb } from '@/lib/supabase-db'
 import { precheckContactForTemplate } from '@/lib/whatsapp/template-contract'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -30,6 +31,9 @@ interface PrecheckContact {
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json().catch(() => ({}))
     const templateName = String(body?.templateName || '').trim()
     const contacts = (body?.contacts || []) as PrecheckContact[]

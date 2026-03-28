@@ -9,6 +9,8 @@ import {
 import { executeWorkflow } from "@/lib/builder/workflow-executor.workflow";
 import { validateWorkflowSchema } from "@/lib/shared/workflow-schema";
 import { completeConversation } from "@/lib/builder/workflow-conversations";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type ResumeWorkflowInput = {
   workflowId: string;

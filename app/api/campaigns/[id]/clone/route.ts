@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { campaignDb } from '@/lib/supabase-db'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Force dynamic rendering (no caching)
 export const dynamic = 'force-dynamic'
@@ -12,8 +14,11 @@ interface Params {
  * POST /api/campaigns/[id]/clone
  * Alias for "duplicate": clone a campaign as a DRAFT.
  */
-export async function POST(_request: Request, { params }: Params) {
+export async function POST(request: Request, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
 
     const cloned = await campaignDb.duplicate(id)

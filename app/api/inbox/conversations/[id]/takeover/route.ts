@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -12,6 +13,9 @@ interface RouteContext {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await context.params
     const supabase = await createClient()
 

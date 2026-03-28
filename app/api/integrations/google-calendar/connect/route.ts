@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createOAuthState, buildGoogleCalendarAuthUrl } from '@/lib/google-calendar'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const STATE_COOKIE = 'gc_oauth_state'
 const RETURN_COOKIE = 'gc_oauth_return'
@@ -13,6 +14,9 @@ function normalizeReturnTo(value: string | null): string {
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const state = createOAuthState()
     const authUrl = await buildGoogleCalendarAuthUrl(state)
     const returnTo = normalizeReturnTo(request.nextUrl.searchParams.get('returnTo'))

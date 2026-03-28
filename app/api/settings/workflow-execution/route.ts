@@ -6,6 +6,8 @@ import {
   getWorkflowExecutionConfig,
 } from "@/lib/builder/workflow-execution-settings";
 import { clampInt } from "@/lib/validation-utils";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const CONFIG_KEY = "workflow_execution_config";
 
@@ -19,8 +21,11 @@ function fallbackConfig(): WorkflowExecutionConfig {
   return { retryCount: 0, retryDelayMs: 500, timeoutMs: 10000 };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { config, source } = await getWorkflowExecutionConfig();
     return NextResponse.json({ ok: true, source, config });
   } catch (error) {
@@ -36,6 +41,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json(
         {

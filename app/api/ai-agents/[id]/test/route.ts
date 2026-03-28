@@ -16,6 +16,7 @@ import {
   hasIndexedContent,
 } from '@/lib/ai/rag-store'
 import type { AIAgent, EmbeddingProvider } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Mapeamento de provider para chave de API na tabela settings
 const EMBEDDING_API_KEY_MAP: Record<EmbeddingProvider, { settingKey: string; envVar: string }> = {
@@ -97,6 +98,9 @@ interface RouteContext {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await context.params
     const supabase = getClient()
     const body = await request.json()

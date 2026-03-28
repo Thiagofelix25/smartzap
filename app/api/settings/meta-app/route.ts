@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { settingsDb } from '@/lib/supabase-db'
 import { getMetaAppConfigPublic } from '@/lib/meta-app-credentials'
 import { isSupabaseConfigured } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 // GET - Retorna status público (não expõe o secret)
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const cfg = await getMetaAppConfigPublic()
     return NextResponse.json(cfg, {
       headers: {
@@ -34,6 +38,9 @@ export async function GET() {
 // Observação: secret NUNCA é retornado; no máximo confirmamos booleanos.
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: 'Supabase não configurado. Complete o setup antes de salvar.' }, { status: 400 })
     }
@@ -62,8 +69,11 @@ export async function POST(request: NextRequest) {
 }
 
 // DELETE - Remove do DB (não mexe nas env vars)
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: 'Supabase não configurado. Complete o setup antes de remover.' }, { status: 400 })
     }

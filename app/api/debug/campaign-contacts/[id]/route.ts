@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -21,7 +23,10 @@ function noStoreJson(payload: unknown, init?: { status?: number }) {
  * GET /api/debug/campaign-contacts/:id
  * Retorna um registro (sem PII) para depuração de status sent/delivered/read.
  */
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(req: Request, { params }: Params) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const { id } = await params
   if (!id) return noStoreJson({ ok: false, error: 'id ausente' }, { status: 400 })
 

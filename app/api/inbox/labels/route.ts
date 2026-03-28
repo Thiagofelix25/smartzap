@@ -5,14 +5,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { listLabels, createNewLabel } from '@/lib/inbox/inbox-service'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const postSchema = z.object({
   name: z.string().min(1).max(50),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional().default('#6B7280'),
 })
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const labels = await listLabels()
     return NextResponse.json(labels)
   } catch (error) {
@@ -26,6 +30,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
 
     const parsed = postSchema.safeParse(body)

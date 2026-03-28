@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { settingsDb } from '@/lib/supabase-db'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { clampInt, boolFromUnknown } from '@/lib/validation-utils'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const CONFIG_KEY = 'auto_suppression_config'
 
@@ -68,8 +69,11 @@ async function getConfigFromDbOrDefault(): Promise<{ config: AutoSuppressionConf
   return { config: defaultConfig(), source: 'default' }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { config, source } = await getConfigFromDbOrDefault()
     return NextResponse.json({ ok: true, source, config })
   } catch (error) {
@@ -81,6 +85,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ ok: false, error: 'Supabase não configurado. Complete o setup antes de salvar.' }, { status: 400 })
     }

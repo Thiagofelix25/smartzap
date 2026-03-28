@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { campaignFolderDb } from '@/lib/supabase-db'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const patchSchema = z.object({
   name: z.string().min(1).max(50).optional(),
@@ -15,6 +16,9 @@ type Params = { params: Promise<{ id: string }> }
 
 export async function GET(request: NextRequest, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
     const folder = await campaignFolderDb.getById(id)
 
@@ -37,6 +41,9 @@ export async function GET(request: NextRequest, { params }: Params) {
 
 export async function PATCH(request: NextRequest, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
     const body = await request.json()
 
@@ -81,6 +88,9 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
 
     // Verifica se a pasta existe

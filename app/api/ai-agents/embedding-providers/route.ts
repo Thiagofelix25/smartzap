@@ -3,10 +3,12 @@
  * Retorna quais providers de embedding estão disponíveis (têm API key configurada)
  */
 
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { EMBEDDING_PROVIDERS } from '@/lib/ai/embeddings'
 import type { EmbeddingProvider } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Mapeamento de provider para chave de API na tabela settings
 const EMBEDDING_API_KEY_MAP: Record<EmbeddingProvider, { settingKey: string; envVar: string }> = {
@@ -20,8 +22,11 @@ const EMBEDDING_API_KEY_MAP: Record<EmbeddingProvider, { settingKey: string; env
  * GET /api/ai-agents/embedding-providers
  * Retorna lista de providers com status de disponibilidade
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const supabase = getSupabaseAdmin()
     if (!supabase) {
       return NextResponse.json(

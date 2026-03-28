@@ -4,6 +4,7 @@ import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { getAdaptiveThrottleState, setAdaptiveThrottleState } from '@/lib/whatsapp-adaptive-throttle'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { clampInt, boolFromUnknown } from '@/lib/validation-utils'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const CONFIG_KEY = 'whatsapp_adaptive_throttle_config'
 
@@ -66,8 +67,11 @@ async function getConfigFromDbOrEnv(): Promise<{ config: WhatsAppAdaptiveThrottl
   return { config: configFromEnv(), source: 'env' }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const credentials = await getWhatsAppCredentials()
     const phoneNumberId = credentials?.phoneNumberId || null
 
@@ -94,6 +98,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ ok: false, error: 'Supabase não configurado. Complete o setup antes de salvar.' }, { status: 400 })
     }

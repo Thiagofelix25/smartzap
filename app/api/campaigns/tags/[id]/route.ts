@@ -4,11 +4,15 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { campaignTagDb } from '@/lib/supabase-db'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type Params = { params: Promise<{ id: string }> }
 
 export async function GET(request: NextRequest, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
     const tag = await campaignTagDb.getById(id)
 
@@ -31,6 +35,9 @@ export async function GET(request: NextRequest, { params }: Params) {
 
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
 
     // Verifica se a tag existe

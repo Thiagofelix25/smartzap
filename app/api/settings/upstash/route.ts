@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { settingsDb } from '@/lib/supabase-db'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { fetchWithTimeout } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -12,8 +13,11 @@ export const revalidate = 0
  */
 
 // GET - Buscar credenciais (mascaradas)
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ configured: false })
     }
@@ -35,6 +39,9 @@ export async function GET() {
 // POST - Salvar e validar credenciais
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json().catch(() => null)
     if (!body) {
       return NextResponse.json({ error: 'Body inválido' }, { status: 400 })
@@ -50,9 +57,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validar credenciais fazendo uma chamada de teste à API do Upstash
-    const auth = Buffer.from(`${email}:${apiKey}`).toString('base64')
+    const basicAuth = Buffer.from(`${email}:${apiKey}`).toString('base64')
     const testResponse = await fetchWithTimeout('https://api.upstash.com/v2/qstash/stats', {
-      headers: { 'Authorization': `Basic ${auth}` },
+      headers: { 'Authorization': `Basic ${basicAuth}` },
       timeoutMs: 5000,
     })
 
@@ -83,8 +90,11 @@ export async function POST(request: NextRequest) {
 }
 
 // DELETE - Remover credenciais
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     await Promise.all([
       settingsDb.set('upstashEmail', ''),
       settingsDb.set('upstashApiKey', ''),

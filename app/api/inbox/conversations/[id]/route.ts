@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getConversation, patchConversation, deleteConversation } from '@/lib/inbox/inbox-service'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const patchSchema = z.object({
   status: z.enum(['open', 'closed']).optional(),

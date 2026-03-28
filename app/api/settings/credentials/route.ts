@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { settingsDb } from '@/lib/supabase-db'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { fetchWithTimeout, safeJson, isAbortError } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -10,8 +11,11 @@ export const revalidate = 0
 // Configuradas via UI no onboarding pós-instalação
 
 // GET - Fetch credentials from DB only
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({
         isConnected: false,
@@ -90,6 +94,9 @@ export async function GET() {
 // POST - Validate AND Save credentials to DB
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json().catch(() => null)
     if (!body) {
       return NextResponse.json({ error: 'Body inválido' }, { status: 400 })
@@ -154,8 +161,11 @@ export async function POST(request: NextRequest) {
 }
 
 // DELETE - Clear credentials from DB
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     // Remove credenciais principais
     await settingsDb.saveAll({
       phoneNumberId: '',

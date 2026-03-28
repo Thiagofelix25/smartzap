@@ -7,12 +7,17 @@ import {
 } from "@/lib/builder/workflow-db";
 import { syncWorkflowSchedule, clearWorkflowSchedule } from "@/lib/builder/workflow-schedule";
 import { settingsDb } from "@/lib/supabase-db";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type RouteParams = {
   params: Promise<{ workflowId: string }>;
 };
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(request: Request, { params }: RouteParams) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { workflowId } = await params;
   const supabase = getSupabaseAdmin();
   if (!supabase) {

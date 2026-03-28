@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Helper to get admin client with null check
 function getClient() {

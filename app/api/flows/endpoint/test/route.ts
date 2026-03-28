@@ -1,6 +1,8 @@
 import crypto from 'crypto'
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { settingsDb } from '@/lib/supabase-db'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const ENDPOINT_URL_SETTING = 'whatsapp_flow_endpoint_url'
 const PUBLIC_KEY_SETTING = 'whatsapp_flow_public_key'
@@ -18,7 +20,10 @@ function buildEndpointUrl(): string | null {
   return null
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const envEndpointUrl = buildEndpointUrl()
   const storedEndpointUrl = await settingsDb.get(ENDPOINT_URL_SETTING)
   const endpointUrl = envEndpointUrl || storedEndpointUrl || null

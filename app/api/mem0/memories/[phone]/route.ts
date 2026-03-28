@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllUserMemories, deleteUserMemories, isMem0EnabledAsync } from '@/lib/ai/mem0-client'
 import { contactDb } from '@/lib/supabase-db'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 interface RouteParams {
   params: Promise<{ phone: string }>
@@ -21,6 +22,9 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { phone } = await params
 
     if (!phone) {
@@ -79,6 +83,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { phone } = await params
 
     if (!phone) {

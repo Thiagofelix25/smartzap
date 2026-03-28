@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { ensureWorkflowRecord, getCompanyId } from "@/lib/builder/workflow-db";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type RouteParams = {
   params: Promise<{ executionId: string }>;
 };
 
 export async function GET(request: Request, { params }: RouteParams) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const { executionId } = await params;
   const supabase = getSupabaseAdmin();
   if (!supabase) {

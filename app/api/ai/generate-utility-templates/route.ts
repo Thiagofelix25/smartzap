@@ -6,6 +6,7 @@ import { judgeTemplates } from '@/lib/ai/services/ai-judge'
 import { buildUtilityGenerationPrompt } from '@/lib/ai/prompts/utility-generator'
 import { supabase } from '@/lib/supabase'
 import { getAiPromptsConfig, isAiRouteEnabled } from '@/lib/ai/ai-center-config'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // ============================================================================
 // PROMPT ÚNICO - Gera templates UTILITY
@@ -351,6 +352,9 @@ async function generateWithUnifiedPrompt(
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const routeEnabled = await isAiRouteEnabled('generateUtilityTemplates')
     if (!routeEnabled) {
       return NextResponse.json(

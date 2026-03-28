@@ -7,12 +7,16 @@ import {
   saveCalendarConfig,
   ensureCalendarChannel,
 } from '@/lib/google-calendar'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const STATE_COOKIE = 'gc_oauth_state'
 const RETURN_COOKIE = 'gc_oauth_return'
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const url = request.nextUrl
     const code = url.searchParams.get('code')
     const state = url.searchParams.get('state')

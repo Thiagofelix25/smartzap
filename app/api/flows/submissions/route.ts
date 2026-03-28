@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -43,6 +44,9 @@ function isMissingColumn(error: unknown, column: string): boolean {
  */
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const sp = request.nextUrl.searchParams
     const flowId = sp.get('flowId')
     const campaignId = sp.get('campaignId')

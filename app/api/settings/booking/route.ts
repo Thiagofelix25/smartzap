@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { settingsDb } from '@/lib/supabase-db'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { checkBookingPrerequisites } from '@/lib/ai/tools/booking-tool'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const BOOKING_FLOW_ID_KEY = 'booking_flow_id'
 
@@ -16,8 +17,11 @@ const BOOKING_FLOW_ID_KEY = 'booking_flow_id'
 // GET - Get booking configuration and status
 // =============================================================================
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({
         ok: false,
@@ -74,6 +78,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({
         ok: false,

@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server'
+;
 import { supabase } from '@/lib/supabase';
 import type { AttendantToken, UpdateAttendantTokenDTO } from '@/types';
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -12,6 +14,9 @@ interface RouteParams {
 
 export async function GET(request: Request, { params }: RouteParams) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params;
 
     const { data, error } = await supabase
@@ -43,6 +48,9 @@ export async function GET(request: Request, { params }: RouteParams) {
 
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params;
     const body: UpdateAttendantTokenDTO = await request.json();
 
@@ -116,6 +124,9 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
 export async function DELETE(request: Request, { params }: RouteParams) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params;
 
     const { error } = await supabase

@@ -6,7 +6,8 @@
  * DELETE - Remove chaves configuradas
  */
 
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { settingsDb } from '@/lib/supabase-db'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import {
@@ -15,6 +16,7 @@ import {
 } from '@/lib/whatsapp/flow-endpoint-crypto'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { metaSetEncryptionPublicKey } from '@/lib/meta-flows-api'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -41,6 +43,9 @@ function isLocalhostUrl(value: string | null): boolean {
  */
 export async function GET(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: 'Supabase nao configurado' }, { status: 400 })
     }
@@ -120,6 +125,9 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: 'Supabase nao configurado' }, { status: 400 })
     }
@@ -207,8 +215,11 @@ export async function POST(request: Request) {
 /**
  * DELETE - Remove chaves configuradas
  */
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: 'Supabase nao configurado' }, { status: 400 })
     }

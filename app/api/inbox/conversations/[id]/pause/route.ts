@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
 import { z } from 'zod'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const pauseSchema = z.object({
   duration_minutes: z.number().int().min(1).max(1440), // 1 minute to 24 hours
@@ -18,6 +19,9 @@ interface RouteContext {
 
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await context.params
     const supabase = await createClient()
     const body = await request.json()

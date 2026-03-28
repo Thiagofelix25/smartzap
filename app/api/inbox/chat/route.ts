@@ -16,6 +16,8 @@ import { DEFAULT_MODEL_ID } from '@/lib/ai/model'
 import { sendMessage as sendWhatsAppMessageToDB } from '@/lib/inbox/inbox-service'
 import { getConversationById } from '@/lib/inbox/inbox-db'
 import type { AIAgent, InboxConversation } from '@/types'
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
@@ -159,6 +161,9 @@ async function persistAILog(params: {
 // =============================================================================
 
 export async function POST(req: Request) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const startTime = Date.now()
 
   try {

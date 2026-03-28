@@ -1,11 +1,16 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Allow 60s cache on Vercel Edge - dashboard uses realtime/polling for updates
 export const revalidate = 60
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     // Try to use pre-aggregated view first (migration 0033)
     const { data: viewData, error: viewError } = await supabase
       .from('campaign_stats_summary')

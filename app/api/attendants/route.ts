@@ -1,18 +1,22 @@
-import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { randomBytes } from 'crypto';
+import { NextResponse, NextRequest } from 'next/server'
+import { supabase } from '@/lib/supabase'
+import { randomBytes } from 'crypto'
 import type {
   AttendantToken,
   CreateAttendantTokenDTO,
   UpdateAttendantTokenDTO,
-} from '@/types';
+} from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // =============================================================================
 // GET - Listar todos os tokens de atendentes
 // =============================================================================
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { data, error } = await supabase
       .from('attendant_tokens')
       .select('*')
@@ -42,6 +46,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body: CreateAttendantTokenDTO = await request.json();
 
     // Validação básica

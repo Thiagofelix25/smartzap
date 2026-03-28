@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { createClient } from '@/lib/supabase-server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 /**
  * POST /api/push/subscribe
@@ -8,6 +10,9 @@ import { createClient } from '@/lib/supabase-server'
  */
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const subscription = await request.json()
 
     if (!subscription?.endpoint || !subscription?.keys) {

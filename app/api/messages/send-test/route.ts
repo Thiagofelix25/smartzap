@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials';
 import { normalizePhoneNumber } from '@/lib/phone-formatter';
 import { fetchWithTimeout, safeJson } from '@/lib/server-http';
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const META_API_VERSION = 'v24.0';
 
@@ -108,6 +109,9 @@ async function findTestTemplate(
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json();
     const { to, credentials: providedCredentials } = body;
 

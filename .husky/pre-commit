@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# ==============================================================================
+# Pre-commit hook: Secrets & Environment File Protection
+# Part of TD-3 Auth Enforcement & Security Hardening
+# ==============================================================================
+
+# 1. Block .env files (except .env.example)
+ENV_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.env($|\.)' | grep -v '\.env\.example$' || true)
+
+if [ -n "$ENV_FILES" ]; then
+  echo ""
+  echo "ERROR: Attempted to commit environment files containing secrets:"
+  echo "$ENV_FILES"
+  echo ""
+  echo "These files are in .gitignore for a reason."
+  echo "If you need to update .env.example, that is allowed."
+  echo ""
+  exit 1
+fi
+
+# 2. Block files containing hardcoded secrets patterns
+# Check staged file contents (not just filenames)
+SECRETS_FOUND=$(git diff --cached -U0 --diff-filter=ACM | grep -E '^\+' | grep -v '^\+\+\+' | grep -iE '(API_KEY|SECRET_KEY|PRIVATE_KEY|ACCESS_TOKEN|AUTH_TOKEN)\s*=\s*["\x27]?[A-Za-z0-9_\-]{10,}' || true)
+
+if [ -n "$SECRETS_FOUND" ]; then
+  echo ""
+  echo "ERROR: Potential hardcoded secrets detected in staged changes:"
+  echo "$SECRETS_FOUND"
+  echo ""
+  echo "Never commit secrets directly in code."
+  echo "Use environment variables or a secrets manager instead."
+  echo ""
+  echo "If this is a false positive (e.g., test fixtures, documentation),"
+  echo "you can bypass with: git commit --no-verify"
+  echo ""
+  exit 1
+fi
+
+# 3. Block common secret file types that shouldn't be committed
+SECRET_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(pem|key|p12|pfx|cer|crt)$' || true)
+
+if [ -n "$SECRET_FILES" ]; then
+  echo ""
+  echo "ERROR: Attempted to commit certificate/key files:"
+  echo "$SECRET_FILES"
+  echo ""
+  echo "These files contain cryptographic material and should not be committed."
+  echo ""
+  exit 1
+fi
+
+echo "Pre-commit: secrets check passed."

@@ -11,6 +11,8 @@ import { createLanguageModel, getProviderFromModel } from '@/lib/ai/provider-fac
 import { DEFAULT_MODEL_ID } from '@/lib/ai/model'
 import { inboxDb } from '@/lib/inbox/inbox-db'
 import type { AIAgent, InboxConversation } from '@/types'
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Allow up to 30 seconds for AI generation
 export const maxDuration = 30
@@ -119,6 +121,9 @@ IMPORTANTE: Use a ferramenta "suggest" para enviar sua sugestão.`
 
 export async function POST(req: Request) {
   try {
+    const auth = await requireSessionOrApiKey(req as NextRequest)
+    if (auth) return auth
+
     const body = await req.json()
     const parsed = requestSchema.safeParse(body)
 

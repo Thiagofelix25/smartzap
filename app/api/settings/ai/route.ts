@@ -19,6 +19,7 @@ import {
   prepareAiPromptsUpdate,
   prepareAiRoutesUpdate,
 } from '@/lib/ai/ai-center-config'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 /**
  * Validation result with support for warnings (valid but with issues)
@@ -143,8 +144,11 @@ function parseJsonSetting<T>(value: string | null, fallback: T): T {
     }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
         // Get all AI settings from Supabase (including OCR settings)
         const { data, error } = await supabase.admin
             ?.from('settings')
@@ -280,6 +284,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
     try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
         const body = await request.json()
         const {
             apiKey,
@@ -471,6 +478,9 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
     try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
         const { searchParams } = new URL(request.url)
         const provider = searchParams.get('provider')
 

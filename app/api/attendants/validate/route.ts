@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server'
+;
 import { supabase } from '@/lib/supabase';
 import type { AttendantToken } from '@/types';
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // =============================================================================
 // POST - Validar token e registrar acesso
@@ -8,6 +10,9 @@ import type { AttendantToken } from '@/types';
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { token } = await request.json();
 
     if (!token) {

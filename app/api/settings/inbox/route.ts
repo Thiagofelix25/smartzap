@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { settingsDb } from '@/lib/supabase-db'
 import { z } from 'zod'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const INBOX_RETENTION_KEY = 'inbox_retention_days'
 const HUMAN_MODE_TIMEOUT_KEY = 'inbox_human_mode_timeout_hours'
@@ -17,8 +18,11 @@ const InboxSettingsSchema = z.object({
   human_mode_timeout_hours: z.number().int().min(0).max(168).optional(), // 0-168 hours (0 = never, max 7 days)
 })
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const [retentionRaw, timeoutRaw] = await Promise.all([
       settingsDb.get(INBOX_RETENTION_KEY),
       settingsDb.get(HUMAN_MODE_TIMEOUT_KEY),
@@ -42,6 +46,9 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
     const parsed = InboxSettingsSchema.safeParse(body)
 

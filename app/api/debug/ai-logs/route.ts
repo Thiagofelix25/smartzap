@@ -3,10 +3,15 @@
  * GET /api/debug/ai-logs?conversation_id=xxx&limit=10
  */
 
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { getSupabaseAdmin } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export async function GET(request: Request) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   // Only allow in development
   if (process.env.NODE_ENV !== 'development') {
     return NextResponse.json(

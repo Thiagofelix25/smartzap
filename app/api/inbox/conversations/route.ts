@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { listConversations } from '@/lib/inbox/inbox-service'
 import type { ConversationStatus, ConversationMode } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const querySchema = z.object({
   status: z.enum(['open', 'closed']).optional(),
@@ -18,6 +19,9 @@ const querySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { searchParams } = new URL(request.url)
 
     const parsed = querySchema.safeParse({

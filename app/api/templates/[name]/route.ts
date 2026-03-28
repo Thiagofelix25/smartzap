@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
 import { ensureHeaderMediaPreviewUrl } from '@/lib/whatsapp/template-media-preview'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // GET /api/templates/[name] - Buscar template específico
 export async function GET(

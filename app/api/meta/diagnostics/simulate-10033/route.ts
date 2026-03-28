@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { fetchWithTimeout, safeJson, isAbortError } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -39,8 +41,11 @@ function normalizeErrorPayload(json: any): {
  * Simula o erro "Unsupported post request" (Graph code 100, subcode 33) sem enviar mensagem real.
  * Estratégia: faz POST em /{WABA_ID}/messages (endpoint inválido para WABA; válido apenas para PHONE_NUMBER_ID).
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
 	try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
 		const creds = await getWhatsAppCredentials().catch(() => null)
 		if (!creds?.accessToken) {
 			return NextResponse.json(

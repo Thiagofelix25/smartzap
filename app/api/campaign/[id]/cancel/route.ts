@@ -12,12 +12,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { campaignDb } from '@/lib/supabase-db'
 import { CampaignStatus } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-export async function POST(
-  _request: NextRequest,
+export async function POST(request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: campaignId } = await params

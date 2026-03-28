@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { getCalendar, getCalendarConfig, saveCalendarConfig, ensureCalendarChannel } from '@/lib/google-calendar'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ error: 'Supabase nao configurado' }, { status: 400 })
     }

@@ -5,9 +5,11 @@
  * Mapeia InboxConversation → AttendantConversation
  */
 
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { getSupabaseAdmin } from '@/lib/supabase'
 import type { InboxConversation, Contact } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // =============================================================================
 // TIPOS
@@ -97,6 +99,9 @@ function formatPhoneForDisplay(phone: string): string {
 
 export async function GET(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const supabase = getSupabaseAdmin()
     if (!supabase) {
       return NextResponse.json({ error: 'Database not available' }, { status: 500 })

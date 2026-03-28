@@ -20,6 +20,7 @@ import {
   buildEmbeddingConfigFromAgent,
 } from '@/lib/ai/rag-store'
 import type { AIAgent, EmbeddingProvider } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Helper to get admin client with null check
 function getClient() {
@@ -78,6 +79,9 @@ function sanitizeContent(content: string): string {
 // GET - List knowledge base files for an agent
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const supabase = getClient()
     const { searchParams } = new URL(request.url)
     const agentId = searchParams.get('agent_id')
@@ -131,6 +135,9 @@ export async function GET(request: NextRequest) {
 // POST - Upload a new knowledge base file
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const supabase = getClient()
     const body = await request.json()
 
@@ -279,6 +286,9 @@ export async function POST(request: NextRequest) {
 // DELETE - Remove a knowledge base file
 export async function DELETE(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const supabase = getClient()
     const { searchParams } = new URL(request.url)
     const fileId = searchParams.get('id')

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 function isMaskedToken(token: unknown): boolean {
   if (typeof token !== 'string') return false
@@ -9,6 +10,9 @@ function isMaskedToken(token: unknown): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const body = await request.json()
   let phoneNumberId = (body.phoneNumberId || '').trim()
   let accessToken = (body.accessToken || '').trim()

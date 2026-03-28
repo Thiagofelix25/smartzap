@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { updateExistingQuickReply, removeQuickReply } from '@/lib/inbox/inbox-service'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const updateSchema = z.object({
   title: z.string().min(1).max(100).optional(),
@@ -18,6 +19,9 @@ interface RouteParams {
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
     const body = await request.json()
 
@@ -68,6 +72,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
 
     await removeQuickReply(id)

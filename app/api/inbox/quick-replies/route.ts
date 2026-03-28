@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { listQuickReplies, createNewQuickReply } from '@/lib/inbox/inbox-service'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const postSchema = z.object({
   title: z.string().min(1).max(100),
@@ -12,8 +13,11 @@ const postSchema = z.object({
   shortcut: z.string().max(20).optional(),
 })
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const quickReplies = await listQuickReplies()
     return NextResponse.json(quickReplies)
   } catch (error) {
@@ -27,6 +31,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
 
     const parsed = postSchema.safeParse(body)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -10,6 +11,9 @@ export const revalidate = 0
  */
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const url = new URL(request.url)
     const campaignId = url.searchParams.get('campaignId') || ''
     const flowId = url.searchParams.get('flowId') || ''

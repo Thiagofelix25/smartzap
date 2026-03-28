@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { clampInt } from '@/lib/validation-utils'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -126,6 +127,9 @@ function buildByConfig(runs: RunRow[]) {
 }
 
 export async function GET(req: NextRequest) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const url = new URL(req.url)
   const rangeDays = clampInt(Number(url.searchParams.get('rangeDays') || '30'), 1, 365)
   const limit = clampInt(Number(url.searchParams.get('limit') || '200'), 1, 500)

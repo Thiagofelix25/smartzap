@@ -1,8 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { Client as QStashClient } from '@upstash/qstash'
 import { supabase } from '@/lib/supabase'
 import { campaignDb } from '@/lib/supabase-db'
 import { CampaignStatus } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Registry in-memory (dev-only) for localhost scheduling.
 // QStash cannot reach localhost, então usamos um setTimeout em dev.
@@ -25,8 +27,11 @@ interface Params {
  * - Só faz sentido para campanhas em status SCHEDULED.
  * - É idempotente: se não houver messageId, apenas limpa o scheduledAt.
  */
-export async function POST(_request: Request, { params }: Params) {
+export async function POST(request: Request, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { id } = await params
 
     const { data: row, error } = await supabase

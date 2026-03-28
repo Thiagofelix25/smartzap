@@ -3,9 +3,13 @@ import { z } from 'zod'
 import { CreateTemplateSchema } from '@/lib/whatsapp/validators/template.schema'
 import { templateService } from '@/lib/whatsapp/template.service'
 import { MetaAPIError } from '@/lib/whatsapp/errors'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
     console.log('[API CREATE TEMPLATE] Incoming Payload Category:', body.category);
 

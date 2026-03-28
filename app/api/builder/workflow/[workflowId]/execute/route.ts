@@ -8,6 +8,8 @@ import {
 } from "@/lib/builder/workflow-db";
 import { executeWorkflow } from "@/lib/builder/workflow-executor.workflow";
 import { validateWorkflowSchema } from "@/lib/shared/workflow-schema";
+import { NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 type BuilderWorkflowInput = {
   workflowId: string;

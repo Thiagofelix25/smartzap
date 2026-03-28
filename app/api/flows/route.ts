@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+
 import { z } from 'zod'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Cache GET requests for 5 minutes - flows rarely change
 // POST/PUT/DELETE remain dynamic by default
@@ -43,8 +45,11 @@ const CreateFlowSchema = z
   })
   .strict()
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const { data, error } = await supabase
       .from('flows')
       // Usar '*' para não quebrar quando a migration ainda não foi aplicada.
@@ -87,6 +92,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const json = await request.json()
     const input = CreateFlowSchema.parse(json)
 

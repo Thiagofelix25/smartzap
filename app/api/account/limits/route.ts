@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { fetchWithTimeout, safeText } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Tier limits mapping
 const TIER_LIMITS: Record<string, number> = {
@@ -78,7 +79,10 @@ async function fetchLimitsFromMeta(phoneNumberId: string, accessToken: string) {
 }
 
 // GET /api/account/limits - Fetch limits usando credenciais salvas (Supabase/env)
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const credentials = await getWhatsAppCredentials()
   
   if (!credentials?.phoneNumberId || !credentials?.accessToken) {
@@ -103,6 +107,9 @@ export async function GET() {
 
 // POST /api/account/limits - Fetch limits (body opcional; fallback para Supabase/env)
 export async function POST(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   let phoneNumberId: string | undefined
   let accessToken: string | undefined
 

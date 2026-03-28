@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { markAsRead } from '@/lib/inbox/inbox-service'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 interface RouteParams {
   params: Promise<{ id: string }>

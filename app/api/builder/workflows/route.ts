@@ -1,12 +1,16 @@
-import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase";
+import { NextResponse, NextRequest } from "next/server"
+import { getSupabaseAdmin } from "@/lib/supabase"
 import {
   getCompanyId,
   listWorkflowRecords,
   toSavedWorkflow,
-} from "@/lib/builder/workflow-db";
+} from "@/lib/builder/workflow-db"
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request as NextRequest)
+  if (auth) return auth
+
   const supabase = getSupabaseAdmin();
   if (!supabase) {
     return NextResponse.json([]);

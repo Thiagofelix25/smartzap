@@ -18,6 +18,7 @@ import { sendWhatsAppMessage, sendTypingIndicator } from '@/lib/whatsapp-send'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { redis } from '@/lib/redis'
 import type { AIAgent } from '@/types'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 // Fluid Compute: 5 minutos de timeout (suficiente para IA)
 export const maxDuration = 300
@@ -42,6 +43,9 @@ interface AIRespondRequest {
 // =============================================================================
 
 export async function POST(req: NextRequest) {
+  const auth = await requireSessionOrApiKey(req as NextRequest)
+  if (auth) return auth
+
   const startTime = Date.now()
 
   console.log(`🤖 [AI-RESPOND] ========================================`)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 const SETTING_KEY = 'ai_agents_global_enabled'
 
@@ -7,8 +8,11 @@ const SETTING_KEY = 'ai_agents_global_enabled'
  * GET /api/settings/ai-agents-toggle
  * Retorna o estado do toggle global de agentes IA
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const adminClient = supabase.admin
     if (!adminClient) {
       return NextResponse.json(
@@ -48,6 +52,9 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const body = await request.json()
     const { enabled } = body
 
