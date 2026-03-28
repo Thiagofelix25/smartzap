@@ -1,7 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { fetchWithTimeout, isAbortError } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request)
+  if (auth) return auth
   // Para fazer redeploy via API da Vercel, precisamos:
   // 1. VERCEL_TOKEN (token de acesso)
   // 2. VERCEL_PROJECT_ID ou nome do projeto

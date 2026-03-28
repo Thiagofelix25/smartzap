@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 /**
  * Returns Vercel deployment information
  * Used to dynamically build URLs to Vercel dashboard
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request)
+  if (auth) return auth
   // Vercel automatically injects these environment variables
   // See: https://vercel.com/docs/projects/environment-variables/system-environment-variables
   

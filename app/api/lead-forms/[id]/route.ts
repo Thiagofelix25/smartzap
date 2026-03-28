@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { leadFormDb } from '@/lib/supabase-db'
 import { UpdateLeadFormSchema, validateBody, formatZodErrors } from '@/lib/api-validation'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -11,8 +12,11 @@ type Params = { params: Promise<{ id: string }> }
  * PATCH /api/lead-forms/[id]
  * Atualiza um formulário
  */
-export async function PATCH(request: Request, { params }: Params) {
+export async function PATCH(request: NextRequest, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request)
+    if (auth) return auth
+
     const { id } = await params
     const body = await request.json()
 
@@ -47,8 +51,11 @@ export async function PATCH(request: Request, { params }: Params) {
  * DELETE /api/lead-forms/[id]
  * Remove um formulário
  */
-export async function DELETE(_request: Request, { params }: Params) {
+export async function DELETE(request: NextRequest, { params }: Params) {
   try {
+    const auth = await requireSessionOrApiKey(request)
+    if (auth) return auth
+
     const { id } = await params
     await leadFormDb.delete(id)
     return NextResponse.json({ success: true })

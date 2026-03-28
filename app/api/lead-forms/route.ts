@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { leadFormDb } from '@/lib/supabase-db'
 import { CreateLeadFormSchema, validateBody, formatZodErrors } from '@/lib/api-validation'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -9,8 +10,11 @@ export const revalidate = 0
  * GET /api/lead-forms
  * Lista formulários de captação (dashboard)
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const auth = await requireSessionOrApiKey(request as NextRequest)
+    if (auth) return auth
+
     const forms = await leadFormDb.getAll()
     return NextResponse.json(forms, {
       headers: {
@@ -29,8 +33,11 @@ export async function GET() {
  * POST /api/lead-forms
  * Cria um formulário de captação
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const auth = await requireSessionOrApiKey(request)
+    if (auth) return auth
+
     const body = await request.json()
 
     const validation = validateBody(CreateLeadFormSchema, body)

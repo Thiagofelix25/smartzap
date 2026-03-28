@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { supabase } from '@/lib/supabase'
 import { fetchWithTimeout } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 /**
  * GET /api/system
@@ -112,7 +113,10 @@ function buildVercelDashboardUrl(): string | null {
 
 // === MAIN HANDLER ===
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request)
+  if (auth) return auth
+
   const startTime = Date.now()
 
   // Initialize response structure

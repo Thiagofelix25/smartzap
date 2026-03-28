@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getWhatsAppCredentials } from '@/lib/whatsapp-credentials'
 import { fetchWithTimeout, safeJson } from '@/lib/server-http'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export async function POST(request: NextRequest) {
+  const auth = await requireSessionOrApiKey(request)
+  if (auth) return auth
+
   let businessAccountId: string | undefined
   let accessToken: string | undefined
 
