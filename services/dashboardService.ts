@@ -82,7 +82,7 @@ export const dashboardService = {
       entry.read += campaign.read || 0;
       entry.delivered += campaign.delivered || 0;
       entry.failed += campaign.failed || 0;
-      if (campaign.status === 'Enviando' || campaign.status === 'Agendado') {
+      if (campaign.status === 'SENDING' || campaign.status === 'SCHEDULED') {
         entry.active += 1;
       }
     });

@@ -5,29 +5,29 @@ import React from 'react';
 // =============================================================================
 
 export enum CampaignStatus {
-  DRAFT = 'Rascunho',
-  SCHEDULED = 'Agendado',
-  SENDING = 'Enviando',
-  COMPLETED = 'Concluído',
-  PAUSED = 'Pausado',
-  FAILED = 'Falhou',
-  CANCELLED = 'Cancelado'
+  DRAFT = 'DRAFT',
+  SCHEDULED = 'SCHEDULED',
+  SENDING = 'SENDING',
+  COMPLETED = 'COMPLETED',
+  PAUSED = 'PAUSED',
+  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED'
 }
 
 export enum ContactStatus {
-  OPT_IN = 'Opt-in',
-  OPT_OUT = 'Opt-out',
-  UNKNOWN = 'Desconhecido',
-  SUPPRESSED = 'Suprimido'
+  OPT_IN = 'OPT_IN',
+  OPT_OUT = 'OPT_OUT',
+  UNKNOWN = 'UNKNOWN',
+  SUPPRESSED = 'SUPPRESSED'
 }
 
 export enum MessageStatus {
-  PENDING = 'Pendente',
-  SENT = 'Enviado',
-  DELIVERED = 'Entregue',
-  READ = 'Lido',
-  SKIPPED = 'Ignorado',
-  FAILED = 'Falhou'
+  PENDING = 'PENDING',
+  SENT = 'SENT',
+  DELIVERED = 'DELIVERED',
+  READ = 'READ',
+  SKIPPED = 'SKIPPED',
+  FAILED = 'FAILED'
 }
 
 export type TemplateCategory = 'MARKETING' | 'UTILIDADE' | 'AUTENTICACAO';

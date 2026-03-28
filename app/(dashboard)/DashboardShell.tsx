@@ -556,10 +556,8 @@ export function DashboardShell({
 
                         <ThemeToggle compact />
                         <DevModeToggle />
-                        <button className="relative group focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-2 rounded-md p-1" aria-label="Notificações (1 nova)">
-                            <Bell size={20} className="text-[var(--ds-text-muted)] group-hover:text-[var(--ds-text-primary)] transition-colors cursor-pointer" aria-hidden="true" />
-                            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-primary-500 rounded-full border-2 border-[var(--ds-bg-base)]" aria-label="1 notificação não lida"></span>
-                        </button>
+                        {/* TD-1: Notification bell removed — placeholder with hardcoded
+                            aria-label was misleading. Notification system is a future feature. */}
                     </div>
                 </header>
 
@@ -651,7 +649,7 @@ function PageContentShell({ children }: { children: React.ReactNode }) {
     const wrapperHeightClass = layout.height === 'full' ? 'h-full' : ''
 
     return (
-        <main className={`flex-1 ${mainOverflowClass} ${mainPaddingClass}`.trim()}>
+        <main id="main-content" className={`flex-1 ${mainOverflowClass} ${mainPaddingClass}`.trim()}>
             <div className={`${wrapperWidthClass} ${wrapperHeightClass}`.trim()}>
                 {layout.showAccountAlerts && <AccountAlertBanner />}
                 {children}

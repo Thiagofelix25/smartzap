@@ -22,7 +22,7 @@ export const getDashboardData = cache(async (): Promise<{
     supabase
       .from('campaigns')
       .select('sent, delivered, read, failed, status')
-      .not('status', 'eq', 'Rascunho'),
+      .not('status', 'eq', 'DRAFT'),
 
     // Campanhas recentes (top 5)
     supabase
@@ -49,7 +49,7 @@ export const getDashboardData = cache(async (): Promise<{
     totalSent += c.sent || 0
     totalDelivered += c.delivered || 0
     totalFailed += c.failed || 0
-    if (c.status === 'Enviando' || c.status === 'Agendado') {
+    if (c.status === 'SENDING' || c.status === 'SCHEDULED') {
       activeCampaigns++
     }
   })
@@ -112,7 +112,7 @@ function generateChartData(campaigns: any[]): ChartDataPoint[] {
     entry.delivered += campaign.delivered || 0
     entry.failed += campaign.failed || 0
 
-    if (campaign.status === 'Enviando' || campaign.status === 'Agendado') {
+    if (campaign.status === 'SENDING' || campaign.status === 'SCHEDULED') {
       entry.active += 1
     }
   })

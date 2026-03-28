@@ -16,8 +16,8 @@ export const viewport: Viewport = {
   ],
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  userScalable: true,
   viewportFit: 'cover',
 }
 
@@ -56,6 +56,12 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:bg-zinc-900 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:border focus:border-zinc-700 focus:shadow-lg focus:outline-none"
+        >
+          Pular para o conteudo principal
+        </a>
         <Providers>
           <ThemedToaster />
           {children}

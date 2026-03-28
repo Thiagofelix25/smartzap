@@ -2168,7 +2168,7 @@ export const dashboardDb = {
                 totalSent += row.sent || 0
                 totalDelivered += row.delivered || 0
                 totalFailed += row.failed || 0
-                if (row.status === 'Enviando' || row.status === 'Agendada') {
+                if (row.status === 'SENDING' || row.status === 'SCHEDULED') {
                     activeCampaigns++
                 }
             })

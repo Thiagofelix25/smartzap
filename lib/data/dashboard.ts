@@ -37,7 +37,7 @@ export async function getDashboardStatsServer(): Promise<{ stats: DashboardStats
             totalDelivered += row.delivered || 0
             // totalRead += row.read || 0
             totalFailed += row.failed || 0
-            if (row.status === 'Enviando' || row.status === 'Agendado') {
+            if (row.status === 'SENDING' || row.status === 'SCHEDULED') {
                 activeCampaignsCount++
             }
         })
@@ -58,7 +58,7 @@ export async function getDashboardStatsServer(): Promise<{ stats: DashboardStats
         read: c.read || 0,
         delivered: c.delivered || 0,
         failed: c.failed || 0,
-        active: c.status === 'Enviando' || c.status === 'Agendado' ? 1 : 0
+        active: c.status === 'SENDING' || c.status === 'SCHEDULED' ? 1 : 0
     })).reverse()
 
     return {
