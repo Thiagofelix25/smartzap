@@ -7,6 +7,7 @@ import type {
   UpdateAttendantTokenDTO,
 } from '@/types'
 import { requireSessionOrApiKey } from '@/lib/request-auth'
+import { CreateAttendantTokenSchema, validateBody, formatZodErrors } from '@/lib/api-validation'
 
 // =============================================================================
 // GET - Listar todos os tokens de atendentes
@@ -44,38 +45,34 @@ export async function GET(request: NextRequest) {
 // POST - Criar novo token de atendente
 // =============================================================================
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const auth = await requireSessionOrApiKey(request as NextRequest)
+    const auth = await requireSessionOrApiKey(request)
     if (auth) return auth
 
-    const body: CreateAttendantTokenDTO = await request.json();
+    const body = await request.json();
 
-    // Validação básica
-    if (!body.name?.trim()) {
+    // Validação com Zod
+    const validation = validateBody(CreateAttendantTokenSchema, body)
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Nome do atendente é obrigatório' },
+        { error: 'Validação falhou', details: formatZodErrors(validation.error) },
         { status: 400 }
-      );
+      )
     }
+
+    const validated = validation.data
 
     // Gerar token único (16 bytes = 32 caracteres hex)
     const token = randomBytes(16).toString('hex');
 
-    // Permissões padrão se não informadas
-    const permissions = body.permissions || {
-      canView: true,
-      canReply: true,
-      canHandoff: false,
-    };
-
     const { data, error } = await supabase
       .from('attendant_tokens')
       .insert({
-        name: body.name.trim(),
+        name: validated.name,
         token,
-        permissions,
-        expires_at: body.expires_at || null,
+        conversation_mode: validated.conversation_mode,
+        system_prompt: validated.system_prompt || null,
       })
       .select()
       .single();

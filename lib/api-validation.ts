@@ -307,3 +307,40 @@ export function formatZodErrors(error: z.ZodError): Record<string, string[]> {
 
   return formatted
 }
+
+// ============================================================================
+// Attendant Schemas (TD-3: Input Validation)
+// ============================================================================
+
+export const CreateAttendantTokenSchema = z.object({
+  name: z.string()
+    .min(1, 'Nome do atendente é obrigatório')
+    .max(100, 'Nome muito longo (máx 100 caracteres)'),
+  conversation_mode: z.enum(['ai_only', 'human_handoff', 'ai_then_human'])
+    .optional()
+    .default('ai_then_human'),
+  system_prompt: z.string()
+    .max(2000, 'System prompt muito longo')
+    .optional(),
+})
+
+export const UpdateAttendantTokenSchema = CreateAttendantTokenSchema.partial()
+
+// ============================================================================
+// Builder Integration Schemas (TD-3: Input Validation)
+// ============================================================================
+
+export const CreateBuilderIntegrationSchema = z.object({
+  type: z.string().min(1, 'Tipo de integração obrigatório'),
+  name: z.string().min(1, 'Nome obrigatório').max(100),
+  config: z.record(z.any()).optional(),
+  credentials: z.record(z.string()).optional(),
+})
+
+export const UpdateBuilderIntegrationSchema = CreateBuilderIntegrationSchema.partial()
+
+export const TestBuilderIntegrationSchema = z.object({
+  config: z.record(z.any()).optional(),
+  credentials: z.record(z.string()).optional(),
+  testPayload: z.record(z.any()).optional(),
+})
