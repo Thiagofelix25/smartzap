@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireSessionOrApiKey } from '@/lib/request-auth'
 
 export const runtime = 'nodejs'
 
@@ -7,6 +8,11 @@ function ensureDev() {
 }
 
 export async function POST(request: NextRequest) {
+  // Auth check (defense-in-depth)
+  const auth = await requireSessionOrApiKey(request)
+  if (auth) return auth
+
+  // Dev-only check (primary gate)
   if (!ensureDev()) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   const body = await request.json().catch(() => ({}))
   const url = typeof body?.url === 'string' ? body.url.trim() : ''
