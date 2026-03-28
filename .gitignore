@@ -125,3 +125,24 @@ PRD-campaigns-new.md
 # Docs (dev-only, kept locally) - /docs/ ignora apenas na raiz
 /docs/
 .env*.local
+
+# Environment & Secrets (AIOX)
+.env
+.env.local
+.env.*.local
+
+# Dependencies (AIOX)
+node_modules/
+
+# Build & Logs (AIOX)
+logs/
+
+# IDE & OS (AIOX)
+Thumbs.db
+.idea/
+*.swp
+
+# AIOX Local (AIOX)
+.aiox-core/local/
+.claude/settings.local.json
+.aiox/install-log.txt
