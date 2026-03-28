@@ -27,7 +27,9 @@ export default function BuilderLayout({ children }: BuilderLayoutProps) {
         <OverlayProvider>
           <OverlaySync />
           <PersistentCanvas />
-          {children}
+          <main id="main-content">
+            {children}
+          </main>
           <OverlayContainer />
         </OverlayProvider>
       </ReactFlowProvider>

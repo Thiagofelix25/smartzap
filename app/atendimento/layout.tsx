@@ -229,7 +229,9 @@ function AttendimentoLayoutInner({ children }: { children: ReactNode }) {
   return (
     <AttendantProvider token={token}>
       <ThemeProvider>
-        {children}
+        <main id="main-content">
+          {children}
+        </main>
       </ThemeProvider>
     </AttendantProvider>
   )
