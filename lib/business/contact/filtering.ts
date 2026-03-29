@@ -74,10 +74,10 @@ export function matchesContactFilter(
     }
   }
 
-  // Status filter
+  // Status filter (normalize hyphens to underscores for comparison)
   if (status && status !== 'ALL') {
-    const contactStatus = contact.status.toLowerCase()
-    const filterStatus = status.toLowerCase()
+    const contactStatus = contact.status.toLowerCase().replace(/-/g, '_')
+    const filterStatus = status.toLowerCase().replace(/-/g, '_')
 
     if (contactStatus !== filterStatus) {
       return false
