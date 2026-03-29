@@ -268,7 +268,7 @@ export const useCampaignWizardController = () => {
       // Navigate to real campaign (replaces temp URL)
       navigate(`/campaigns/${campaign.id}`, { replace: true });
 
-      if (campaign?.status === 'Agendado') {
+      if (campaign?.status === CampaignStatus.SCHEDULED) {
         toast.success('Campanha criada e agendada com sucesso!');
       } else {
         toast.success('Campanha criada e disparada com sucesso!');
