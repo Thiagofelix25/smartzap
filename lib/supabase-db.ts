@@ -103,7 +103,7 @@ export const campaignDb = {
     getAll: async (): Promise<Campaign[]> => {
         const { data, error } = await supabase
             .from('campaigns')
-            .select('*')
+            .select('id,name,status,template_name,template_variables,total_recipients,sent,delivered,read,skipped,failed,created_at,scheduled_date,started_at,first_dispatch_at,last_sent_at,completed_at,cancelled_at,folder_id,flow_id,flow_name')
             .order('created_at', { ascending: false })
 
         if (error) throw error
@@ -285,7 +285,7 @@ export const campaignDb = {
     getById: async (id: string): Promise<Campaign | undefined> => {
         const { data, error } = await supabase
             .from('campaigns')
-            .select('*')
+            .select('id,name,status,template_name,template_variables,total_recipients,sent,delivered,read,skipped,failed,created_at,scheduled_date,started_at,first_dispatch_at,last_sent_at,completed_at,cancelled_at,folder_id,flow_id,flow_name')
             .eq('id', id)
             .single()
 

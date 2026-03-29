@@ -11,40 +11,42 @@
 
 /**
  * Possible states of a campaign throughout its lifecycle.
+ * Standardized to English uppercase for consistency with types.ts
  */
 export enum CampaignStatus {
   /** Campaign is being prepared, not yet ready to send */
-  DRAFT = 'Rascunho',
+  DRAFT = 'DRAFT',
   /** Campaign is scheduled to be sent at a future time */
-  SCHEDULED = 'Agendado',
+  SCHEDULED = 'SCHEDULED',
   /** Campaign is currently sending messages */
-  SENDING = 'Enviando',
+  SENDING = 'SENDING',
   /** Campaign has finished sending all messages */
-  COMPLETED = 'Concluído',
+  COMPLETED = 'COMPLETED',
   /** Campaign was paused by the user */
-  PAUSED = 'Pausado',
+  PAUSED = 'PAUSED',
   /** Campaign failed due to an error */
-  FAILED = 'Falhou',
+  FAILED = 'FAILED',
   /** Campaign was cancelled by the user */
-  CANCELLED = 'Cancelado',
+  CANCELLED = 'CANCELLED',
 }
 
 /**
  * Status of individual messages within a campaign.
+ * Standardized to English uppercase for consistency with types.ts
  */
 export enum MessageStatus {
   /** Message is queued but not yet sent */
-  PENDING = 'Pendente',
+  PENDING = 'PENDING',
   /** Message was sent to WhatsApp API */
-  SENT = 'Enviado',
+  SENT = 'SENT',
   /** Message was delivered to recipient's device */
-  DELIVERED = 'Entregue',
+  DELIVERED = 'DELIVERED',
   /** Message was read by recipient */
-  READ = 'Lido',
+  READ = 'READ',
   /** Message was skipped (invalid contact, suppressed, etc.) */
-  SKIPPED = 'Ignorado',
+  SKIPPED = 'SKIPPED',
   /** Message failed to send */
-  FAILED = 'Falhou',
+  FAILED = 'FAILED',
 }
 
 // =============================================================================
