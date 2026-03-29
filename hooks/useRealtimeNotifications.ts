@@ -11,6 +11,7 @@ import { useEffect, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
 import { createRealtimeChannel, subscribeToTable, activateChannel, removeChannel } from '@/lib/supabase-realtime'
 import type { RealtimePayload, RealtimeTable } from '@/types'
+import { CampaignStatus } from '@/types'
 
 type ToastType = 'success' | 'info' | 'warning' | 'error'
 
@@ -39,8 +40,8 @@ const DEFAULT_NOTIFICATIONS: NotificationConfig[] = [
             if (payload.eventType === 'UPDATE') {
                 // Só notificar quando houver TRANSIÇÃO real para o estado final.
                 // Caso contrário, updates de contadores (delivered/read) após conclusão viram spam.
-                if (newStatus === 'Concluído') {
-                    const statusTransition = oldStatus !== 'Concluído'
+                if (newStatus === CampaignStatus.COMPLETED) {
+                    const statusTransition = oldStatus !== CampaignStatus.COMPLETED
                     const completedAtTransition = (oldCompletedAt == null) && (newCompletedAt != null)
 
                     if (!statusTransition && !completedAtTransition) return null
@@ -48,8 +49,8 @@ const DEFAULT_NOTIFICATIONS: NotificationConfig[] = [
                     const name = (data.name as string | undefined) ?? 'Sem nome'
                     return `Campanha "${name}" concluída!`
                 }
-                if (newStatus === 'Falhou') {
-                    const statusTransition = oldStatus !== 'Falhou'
+                if (newStatus === CampaignStatus.FAILED) {
+                    const statusTransition = oldStatus !== CampaignStatus.FAILED
                     if (!statusTransition) return null
 
                     const name = (data.name as string | undefined) ?? 'Sem nome'
@@ -98,8 +99,8 @@ export function useRealtimeNotifications({
         if (config.table === 'campaigns' && payload.eventType === 'UPDATE') {
             const data = payload.new as Record<string, unknown> | null
             const status = data?.status
-            if (status === 'Falhou') return 'error'
-            if (status === 'Concluído') return 'success'
+            if (status === CampaignStatus.FAILED) return 'error'
+            if (status === CampaignStatus.COMPLETED) return 'success'
         }
 
         return 'info'
