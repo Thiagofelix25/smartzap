@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { TokenInput } from '../TokenInput';
 import { ValidatingOverlay } from '../ValidatingOverlay';
@@ -13,10 +13,27 @@ import type { FormProps } from './types';
  * "Sistema de Transmissão" - filas de mensagens neurais.
  */
 export function QStashForm({ data, onComplete, onBack, showBack }: FormProps) {
-  const [token, setToken] = useState(data.qstashToken);
+  // Auto-detect from env if available
+  const envToken = typeof window !== 'undefined' ?
+    (document.documentElement.getAttribute('data-qstash-token') || process.env.NEXT_PUBLIC_QSTASH_TOKEN) :
+    null;
+
+  const [token, setToken] = useState(data.qstashToken || envToken || '');
   const [validating, setValidating] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isEnvironmentToken] = useState(!!envToken);
+
+  // Auto-submit se token já está presente (sem validação remota)
+  useEffect(() => {
+    if (isEnvironmentToken && token && token.length > 10 && !success) {
+      const timer = setTimeout(() => {
+        setSuccess(true);
+        setValidating(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [token, success, isEnvironmentToken]);
 
   const normalized = normalizeToken(token);
   const isValidFormat =
@@ -49,7 +66,12 @@ export function QStashForm({ data, onComplete, onBack, showBack }: FormProps) {
       const result = await res.json();
 
       if (!res.ok || result.error) {
-        throw new Error(result.error || 'Credenciais inválidas');
+        // Mostra hint detalhado se disponivel (da nova API de validacao)
+        const hint = result.details?.hint;
+        const msg = hint
+          ? `${result.error}\n${hint}`
+          : (result.error || 'Credenciais inválidas');
+        throw new Error(msg);
       }
 
       // Garantir tempo mínimo de exibição
@@ -76,6 +98,11 @@ export function QStashForm({ data, onComplete, onBack, showBack }: FormProps) {
   };
 
   const handleAutoSubmit = () => {
+    // Se token veio do ambiente, não valida remotamente
+    if (isEnvironmentToken) {
+      setSuccess(true);
+      return;
+    }
     if (canValidate) {
       handleValidate();
     }
@@ -122,15 +149,16 @@ export function QStashForm({ data, onComplete, onBack, showBack }: FormProps) {
           setToken(val);
           setError(null);
         }}
-        placeholder="eyJ... ou qstash_..."
-        validating={validating}
+        placeholder={isEnvironmentToken ? "Detectado do ambiente..." : "eyJ... ou qstash_..."}
+        validating={validating && !isEnvironmentToken}
         error={error || undefined}
         minLength={VALIDATION.QSTASH_TOKEN_MIN_LENGTH}
         autoSubmitLength={VALIDATION.QSTASH_TOKEN_MIN_LENGTH}
-        onAutoSubmit={handleAutoSubmit}
+        onAutoSubmit={isEnvironmentToken ? undefined : handleAutoSubmit}
         showCharCount={false}
         accentColor="orange"
-        autoFocus
+        autoFocus={!isEnvironmentToken}
+        disabled={isEnvironmentToken}
       />
 
       {/* Collapsible help - esconde durante validação */}

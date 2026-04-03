@@ -41,6 +41,11 @@ export const PUBLIC_ENDPOINTS = [
   '/api/flows',          // Workflow management (internal dashboard)
   '/api/flow-engine',    // Workflow execution engine (internal)
   '/api/campaign/dispatch', // QStash dispatch webhook (signature verified)
+  '/api/install/restore', // Installation restore (debug/recovery)
+  '/api/install/clear-state', // Installation state clear (debug/recovery)
+  '/api/install/inject-vercel-token', // Token injection (recovery)
+  '/api/install/inject-supabase-pat', // PAT injection (recovery)
+  '/api/install/inject-qstash-token', // Token injection (recovery)
 ]
 
 // ============================================================================

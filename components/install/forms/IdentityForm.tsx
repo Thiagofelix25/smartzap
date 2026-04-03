@@ -70,7 +70,11 @@ export function IdentityForm({ data, onComplete }: FormProps) {
     }
 
     if (!validation.valid) {
-      setError(`Código de acesso: mínimo ${VALIDATION.PASSWORD_MIN_LENGTH} chars, 1 letra, 1 número`);
+      const missing: string[] = [];
+      if (!validation.checks.minLen) missing.push(`${VALIDATION.PASSWORD_MIN_LENGTH}+ caracteres`);
+      if (!validation.checks.hasLetter) missing.push('1 letra');
+      if (!validation.checks.hasNumber) missing.push('1 numero');
+      setError(`Senha requer: ${missing.join(', ')}`);
       return;
     }
 

@@ -87,7 +87,7 @@ export async function GET() {
       const { error } = await supabase.from('settings').select('key').limit(1)
       const latency = Date.now() - start
 
-      if (error && !error.message.includes('does not exist')) {
+      if (error && !error.message.includes('does not exist') && !error.message.includes('Could not find the table')) {
         throw error
       }
 

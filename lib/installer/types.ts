@@ -112,8 +112,14 @@ export const stepValidators: Record<InstallStep, (data: InstallData) => boolean>
   1: (data) => {
     const name = data.name?.trim() ?? '';
     const email = data.email?.trim() ?? '';
-    const password = data.password?.trim() ?? '';
-    return Boolean(name.length >= VALIDATION.NAME_MIN_LENGTH && isValidEmail(email) && password.length >= VALIDATION.PASSWORD_MIN_LENGTH);
+    const password = data.password ?? '';
+    // Validacao deve ser identica ao validatePassword() em IdentityForm.tsx:
+    // minimo 8 chars + pelo menos 1 letra + pelo menos 1 numero
+    const passwordValid =
+      password.length >= VALIDATION.PASSWORD_MIN_LENGTH &&
+      /[A-Za-z]/.test(password) &&
+      /\d/.test(password);
+    return Boolean(name.length >= VALIDATION.NAME_MIN_LENGTH && isValidEmail(email) && passwordValid);
   },
   2: (data) => {
     const token = normalizeToken(data.vercelToken ?? '');

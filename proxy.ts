@@ -26,6 +26,7 @@ const PUBLIC_API_ROUTES = [
     '/api/health',            // Health checks
     '/api/system',            // Info básica do sistema
     '/api/installer',         // Setup inicial (protegido separadamente após install)
+    '/api/install',           // Setup/recovery endpoints (restore, clear-state, inject-vercel-token)
     '/api/campaign/workflow', // Chamado internamente pelo QStash
     '/api/public',            // Rotas explicitamente públicas (lead forms, etc)
 ]
