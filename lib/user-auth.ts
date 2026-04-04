@@ -160,34 +160,29 @@ async function setStoredSessions(sessions: StoredSession[]): Promise<void> {
  */
 export async function isSetupComplete(): Promise<boolean> {
   // Bypass via env var — funciona tanto em prod quanto em dev
-  if (process.env.SETUP_COMPLETE === 'true') return true
+  if (process.env.SETUP_COMPLETE?.trim() === 'true') return true
 
-  // Em dev/local, verifica no banco se disponível
-  if (process.env.NODE_ENV !== 'production') {
-    const client = getSupabaseAdmin()
-    if (!client) {
-      // Sem Supabase configurado mas com MASTER_PASSWORD = pode logar
-      return !!process.env.MASTER_PASSWORD
-    }
-
-    try {
-      const { data, error } = await client
-        .from('settings')
-        .select('key, value')
-        .eq('key', 'company_name')
-        .single()
-
-      if (error) {
-        console.warn('[isSetupComplete] settings/company_name query error:', error.message)
-        return !!process.env.MASTER_PASSWORD
-      }
-      return !!data?.value
-    } catch {
-      return !!process.env.MASTER_PASSWORD
-    }
+  // Verifica no banco se company_name existe
+  const client = getSupabaseAdmin()
+  if (!client) {
+    return !!process.env.MASTER_PASSWORD
   }
 
-  return false
+  try {
+    const { data, error } = await client
+      .from('settings')
+      .select('key, value')
+      .eq('key', 'company_name')
+      .single()
+
+    if (error) {
+      console.warn('[isSetupComplete] settings/company_name query error:', error.message)
+      return !!process.env.MASTER_PASSWORD
+    }
+    return !!data?.value
+  } catch {
+    return !!process.env.MASTER_PASSWORD
+  }
 }
 
 /**
