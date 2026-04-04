@@ -1,12 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StepCard } from './StepCard';
 import { cn } from '@/lib/utils';
-import { playError } from '@/hooks/useSoundFX';
 import type { InstallStep, InstallErrorType } from '@/lib/installer/types';
 
 interface ErrorViewProps {
@@ -51,19 +48,13 @@ const ERROR_HINTS: Record<InstallErrorType, string> = {
  * Tema Blade Runner — exibe mensagem específica por tipo de erro.
  */
 export function ErrorView({ error, errorType, errorDetails, returnToStep, onRetry, onGoToStep }: ErrorViewProps) {
-  useEffect(() => {
-    playError();
-  }, []);
-
   const hint = errorType ? ERROR_HINTS[errorType] : ERROR_HINTS.unknown;
 
   return (
     <StepCard glowColor="red">
       <div className="flex flex-col items-center text-center py-8">
         {/* Error icon with glow */}
-        <motion.div
-          animate={{ opacity: [1, 0.6, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
+        <div
           className={cn(
             'w-20 h-20 rounded-full',
             'bg-[var(--br-neon-pink)]/20 border-2 border-[var(--br-neon-pink)]',
@@ -72,7 +63,7 @@ export function ErrorView({ error, errorType, errorDetails, returnToStep, onRetr
           )}
         >
           <AlertCircle className="w-10 h-10 text-[var(--br-neon-pink)]" />
-        </motion.div>
+        </div>
 
         {/* Title - Blade Runner style */}
         <h2 className="mt-6 text-xl font-mono font-bold text-[var(--br-hologram-white)] uppercase tracking-wide">
@@ -89,18 +80,14 @@ export function ErrorView({ error, errorType, errorDetails, returnToStep, onRetr
 
         {/* Error details — apenas para desenvolvedores */}
         {errorDetails && (
-          <motion.details
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-4 w-full text-left"
-          >
+          <details className="mt-4 w-full text-left">
             <summary className="text-xs font-mono text-[var(--br-dust-gray)] cursor-pointer hover:text-[var(--br-muted-cyan)]">
               {'>'} Log de diagnóstico
             </summary>
             <pre className="mt-2 p-3 bg-[var(--br-void-black)] border border-[var(--br-dust-gray)]/30 rounded-lg text-xs text-[var(--br-muted-cyan)] font-mono overflow-auto max-h-32">
               {errorDetails}
             </pre>
-          </motion.details>
+          </details>
         )}
 
         {/* Qual etapa foi afetada */}

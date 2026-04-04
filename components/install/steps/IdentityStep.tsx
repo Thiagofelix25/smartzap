@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { StepCard } from '../StepCard';
 import { ServiceIcon } from '../ServiceIcon';
@@ -227,11 +226,8 @@ export function IdentityStep({ onComplete, initialName = '', initialEmail = '' }
 
           {/* Password strength indicators */}
           {password.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mt-2 flex gap-3 text-xs"
-            >
+            <div className="mt-2 flex gap-3 text-xs">
+
               <span
                 className={cn(
                   validation.checks.minLen ? 'text-emerald-400' : 'text-zinc-500'
@@ -253,7 +249,7 @@ export function IdentityStep({ onComplete, initialName = '', initialEmail = '' }
               >
                 {validation.checks.hasNumber ? '✓' : '○'} Número
               </span>
-            </motion.div>
+            </div>
           )}
         </div>
 
@@ -294,28 +290,22 @@ export function IdentityStep({ onComplete, initialName = '', initialEmail = '' }
 
           {/* Match indicator */}
           {confirmPassword.length > 0 && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            <p
               className={cn(
                 'mt-2 text-xs',
                 password === confirmPassword ? 'text-emerald-400' : 'text-red-400'
               )}
             >
               {password === confirmPassword ? '✓ Senhas conferem' : '✗ Senhas não conferem'}
-            </motion.p>
+            </p>
           )}
         </div>
 
         {/* Error */}
         {error && (
-          <motion.p
-            initial={{ opacity: 0, y: -5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-sm text-red-400 text-center"
-          >
+          <p className="text-sm text-red-400 text-center">
             {error}
-          </motion.p>
+          </p>
         )}
 
         {/* Submit */}

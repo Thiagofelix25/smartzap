@@ -1,12 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StepCard } from './StepCard';
 import { cn } from '@/lib/utils';
-import { playComplete } from '@/hooks/useSoundFX';
 
 interface SuccessViewProps {
   name: string;
@@ -28,11 +25,6 @@ function sanitizeFirstName(fullName: string): string {
 export function SuccessView({ name }: SuccessViewProps) {
   const firstName = sanitizeFirstName(name);
 
-  // Som de conclusão ao montar
-  useEffect(() => {
-    playComplete();
-  }, []);
-
   const handleGoToDashboard = () => {
     window.location.href = '/login';
   };
@@ -41,10 +33,7 @@ export function SuccessView({ name }: SuccessViewProps) {
     <StepCard glowColor="cyan">
       <div className="flex flex-col items-center text-center py-8">
         {/* Success icon with glow */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        <div
           className={cn(
             'w-20 h-20 rounded-full',
             'bg-[var(--br-neon-cyan)]/20 border-2 border-[var(--br-neon-cyan)]',
@@ -53,35 +42,20 @@ export function SuccessView({ name }: SuccessViewProps) {
           )}
         >
           <CheckCircle className="w-10 h-10 text-[var(--br-neon-cyan)]" />
-        </motion.div>
+        </div>
 
         {/* Title - Blade Runner reference */}
-        <motion.h2
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6 text-xl font-mono font-bold text-[var(--br-hologram-white)] uppercase tracking-wide"
-        >
+        <h2 className="mt-6 text-xl font-mono font-bold text-[var(--br-hologram-white)] uppercase tracking-wide">
           Incubação Completa, {firstName}.
-        </motion.h2>
+        </h2>
 
         {/* Subtitle - Tyrell motto */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="mt-2 text-sm text-[var(--br-neon-magenta)] font-mono italic"
-        >
+        <p className="mt-2 text-sm text-[var(--br-neon-magenta)] font-mono italic">
           &quot;Mais humano que humano&quot;
-        </motion.p>
+        </p>
 
         {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.3 }}
-          className="mt-8 w-full"
-        >
+        <div className="mt-8 w-full">
           <Button
             size="lg"
             className={cn(
@@ -96,17 +70,12 @@ export function SuccessView({ name }: SuccessViewProps) {
           >
             Iniciar Operações
           </Button>
-        </motion.div>
+        </div>
 
         {/* Hint - Blade Runner style */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.7 }}
-          className="mt-4 text-xs text-[var(--br-dust-gray)] font-mono"
-        >
+        <p className="mt-4 text-xs text-[var(--br-dust-gray)] font-mono">
           Configure a API do WhatsApp em Configurações • Seu baseline foi registrado
-        </motion.p>
+        </p>
       </div>
     </StepCard>
   );

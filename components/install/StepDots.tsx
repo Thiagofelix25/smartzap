@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface StepDotsProps {
@@ -28,44 +27,20 @@ export function StepDots({
         const isCompleted = completedSteps.includes(stepNum) || stepNum < current;
 
         return (
-          <motion.div
+          <div
             key={i}
             className="relative"
-            animate={{ scale: isActive ? 1.3 : 1 }}
-            transition={{
-              type: 'spring',
-              stiffness: 500,
-              damping: 30,
-            }}
           >
-            {/* Pulse ring para step ativo */}
-            {isActive && (
-              <motion.div
-                className="absolute inset-0 rounded-full bg-[var(--br-neon-cyan)]"
-                initial={{ scale: 1, opacity: 0.5 }}
-                animate={{
-                  scale: [1, 2.5, 1],
-                  opacity: [0.5, 0, 0.5],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              />
-            )}
-
             {/* Dot */}
-            <motion.div
+            <div
               className={cn(
-                'w-2.5 h-2.5 rounded-full transition-colors duration-300 relative z-10',
-                isActive && 'bg-[var(--br-neon-cyan)] shadow-[0_0_8px_var(--br-neon-cyan)]',
+                'w-2.5 h-2.5 rounded-full transition-all duration-300 relative z-10',
+                isActive && 'bg-[var(--br-neon-cyan)] shadow-[0_0_8px_var(--br-neon-cyan)] scale-130',
                 isCompleted && !isActive && 'bg-[var(--br-neon-cyan)]/50',
                 !isActive && !isCompleted && 'bg-[var(--br-dust-gray)]'
               )}
-              initial={false}
             />
-          </motion.div>
+          </div>
         );
       })}
     </div>

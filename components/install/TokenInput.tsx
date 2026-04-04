@@ -8,7 +8,6 @@ import {
   InputHTMLAttributes,
   forwardRef,
 } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Eye,
   EyeOff,
@@ -143,28 +142,7 @@ export const TokenInput = forwardRef<HTMLInputElement, TokenInputProps>(
         )}
 
         {/* Input container */}
-        <motion.div
-          animate={
-            isError
-              ? {
-                  x: [-4, 4, -4, 4, -2, 2, 0],
-                  transition: { duration: 0.4 },
-                }
-              : value.length === 0 && !validating && !success
-                ? {
-                    borderColor: [
-                      'rgba(10, 189, 198, 0.2)',
-                      'rgba(10, 189, 198, 0.5)',
-                      'rgba(10, 189, 198, 0.2)',
-                    ],
-                    transition: {
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    },
-                  }
-                : {}
-          }
+        <div
           className={cn(
             'relative flex items-center gap-2',
             'px-4 py-3 rounded-lg',
@@ -212,100 +190,66 @@ export const TokenInput = forwardRef<HTMLInputElement, TokenInputProps>(
           )}
 
           {/* Status icons */}
-          <AnimatePresence mode="wait">
-            {validating && (
-              <motion.div
-                key="validating"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-              >
-                <Loader2
-                  className={cn('w-5 h-5 animate-spin', colors.icon)}
-                />
-              </motion.div>
-            )}
-            {success && !validating && (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-              >
-                <Check className={cn('w-5 h-5', colors.icon)} />
-              </motion.div>
-            )}
-            {isError && !validating && (
-              <motion.div
-                key="error"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-              >
-                <X className="w-5 h-5 text-[var(--br-neon-pink)]" />
-              </motion.div>
-            )}
-            {masked && !validating && !success && !isError && value.length > 0 && (
-              <motion.button
-                key="toggle"
-                type="button"
-                onClick={() => setShowValue(!showValue)}
-                className="text-[var(--br-dust-gray)] hover:text-[var(--br-muted-cyan)] transition-colors p-1"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {showValue ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </motion.button>
-            )}
-          </AnimatePresence>
-        </motion.div>
+          {validating && (
+            <div>
+              <Loader2
+                className={cn('w-5 h-5 animate-spin', colors.icon)}
+              />
+            </div>
+          )}
+          {success && !validating && (
+            <div>
+              <Check className={cn('w-5 h-5', colors.icon)} />
+            </div>
+          )}
+          {isError && !validating && (
+            <div>
+              <X className="w-5 h-5 text-[var(--br-neon-pink)]" />
+            </div>
+          )}
+          {masked && !validating && !success && !isError && value.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowValue(!showValue)}
+              className="text-[var(--br-dust-gray)] hover:text-[var(--br-muted-cyan)] transition-colors p-1"
+            >
+              {showValue ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          )}
+        </div>
 
         {/* Bottom row: paste indicator / error / char count */}
         <div className="flex items-center justify-between mt-2 min-h-[20px]">
           {/* Paste indicator */}
-          <AnimatePresence>
-            {justPasted && (
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                className={cn(
-                  'flex items-center gap-1 text-xs font-mono',
-                  colors.icon
-                )}
-              >
-                <ClipboardPaste className="w-3 h-3" />
-                dados recebidos
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {justPasted && (
+            <div
+              className={cn(
+                'flex items-center gap-1 text-xs font-mono',
+                colors.icon
+              )}
+            >
+              <ClipboardPaste className="w-3 h-3" />
+              dados recebidos
+            </div>
+          )}
 
           {/* Error message */}
-          <AnimatePresence>
-            {error && !justPasted && (
-              <motion.p
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className="text-xs font-mono text-[var(--br-neon-pink)]"
-              >
-                {'! '}{error}
-              </motion.p>
-            )}
-          </AnimatePresence>
+          {error && !justPasted && (
+            <p className="text-xs font-mono text-[var(--br-neon-pink)]">
+              {'! '}{error}
+            </p>
+          )}
 
           {/* Spacer */}
           {!justPasted && !error && <div />}
 
           {/* Character counter */}
           {showCharCount && value.length > 0 && !success && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            <span
               className={cn(
                 'text-xs font-mono',
                 value.length >= minLength
@@ -314,7 +258,7 @@ export const TokenInput = forwardRef<HTMLInputElement, TokenInputProps>(
               )}
             >
               [{value.length}/{minLength}+]
-            </motion.span>
+            </span>
           )}
         </div>
       </div>

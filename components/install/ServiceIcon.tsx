@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import {
   User,
   Triangle,
@@ -85,7 +84,7 @@ const sizes = {
 };
 
 /**
- * Ícone de serviço com cores e animações específicas.
+ * Ícone de serviço com cores específicas.
  *
  * Serviços:
  * - identity: User icon (zinc)
@@ -105,14 +104,7 @@ export function ServiceIcon({
   const sizeConfig = sizes[size];
 
   return (
-    <motion.div
-      initial={animated ? { opacity: 0, scale: 0.8 } : false}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{
-        type: 'spring',
-        stiffness: 300,
-        damping: 20,
-      }}
+    <div
       className={cn(
         'flex items-center justify-center',
         sizeConfig.container,
@@ -123,7 +115,7 @@ export function ServiceIcon({
       )}
     >
       <Icon className={cn(sizeConfig.icon, config.color)} />
-    </motion.div>
+    </div>
   );
 }
 

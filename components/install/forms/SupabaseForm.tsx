@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { ChevronDown, Pause, Loader2, Info, AlertCircle } from 'lucide-react';
 import { TokenInput } from '../TokenInput';
 import { ValidatingOverlay } from '../ValidatingOverlay';
@@ -310,13 +309,8 @@ export function SupabaseForm({ data, onComplete, onBack, showBack }: FormProps) 
 
   if (uiStep === 'needspace') {
     return (
-      <motion.div
-        key="needspace"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        className="space-y-5"
-      >
+      <div className="space-y-5">
+
         {/* Header */}
         <div className="flex flex-col items-center text-center">
           <div className="w-14 h-14 rounded-full bg-[var(--br-deep-navy)] border border-[var(--br-neon-orange)]/30 flex items-center justify-center">
@@ -334,14 +328,11 @@ export function SupabaseForm({ data, onComplete, onBack, showBack }: FormProps) 
 
         {/* Error */}
         {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 p-3 rounded-lg bg-[var(--br-neon-pink)]/10 border border-[var(--br-neon-pink)]/30"
-          >
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--br-neon-pink)]/10 border border-[var(--br-neon-pink)]/30">
+
             <AlertCircle className="w-4 h-4 text-[var(--br-neon-pink)] shrink-0" />
             <span className="text-sm font-mono text-[var(--br-neon-pink)]">{error}</span>
-          </motion.div>
+          </div>
         )}
 
         {/* Pausing State */}
@@ -405,7 +396,7 @@ export function SupabaseForm({ data, onComplete, onBack, showBack }: FormProps) 
             </div>
           </>
         )}
-      </motion.div>
+      </div>
     );
   }
 

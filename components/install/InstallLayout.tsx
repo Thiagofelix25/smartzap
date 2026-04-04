@@ -1,11 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ReactNode, useEffect, useRef, useCallback } from 'react';
+import { ReactNode } from 'react';
 import { StepDots } from './StepDots';
-import { RainEffect } from './RainEffect';
 import { cn } from '@/lib/utils';
-import { startAmbient, stopAmbient } from '@/hooks/useSoundFX';
 
 interface InstallLayoutProps {
   children: ReactNode;
@@ -28,27 +25,8 @@ export function InstallLayout({
   showDots = true,
   className,
 }: InstallLayoutProps) {
-  const audioStartedRef = useRef(false);
-
-  // Handler de clique direto no elemento (não no document)
-  // Isso é reconhecido como "user gesture" pelo browser
-  const handleInteraction = useCallback(() => {
-    if (!audioStartedRef.current) {
-      audioStartedRef.current = true;
-      startAmbient();
-    }
-  }, []);
-
-  // Cleanup no unmount
-  useEffect(() => {
-    return () => {
-      stopAmbient();
-    };
-  }, []);
   return (
     <div
-      onClick={handleInteraction}
-      onKeyDown={handleInteraction}
       className={cn(
         'dark blade-runner',
         'min-h-screen flex flex-col items-center justify-center p-4',
@@ -57,9 +35,6 @@ export function InstallLayout({
         className
       )}
     >
-      {/* Rain effect */}
-      <RainEffect dropCount={60} />
-
       {/* Scanlines overlay */}
       <div className="br-scanlines" />
 
@@ -75,12 +50,7 @@ export function InstallLayout({
       <div className="relative z-10 w-full max-w-md flex flex-col items-center">
         {/* Logo */}
         {showLogo && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="mb-8 text-center"
-          >
+          <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold tracking-wider text-[var(--br-hologram-white)]">
               <span className="br-text-glow-cyan">SMART</span>
               <span className="text-[var(--br-neon-magenta)]">ZAP</span>
@@ -88,19 +58,14 @@ export function InstallLayout({
             <p className="text-xs tracking-[0.3em] text-[var(--br-muted-cyan)] mt-2 uppercase">
               Protocolo de Inicialização
             </p>
-          </motion.div>
+          </div>
         )}
 
         {/* Step Dots */}
         {showDots && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.3 }}
-            className="mb-8"
-          >
+          <div className="mb-8">
             <StepDots current={currentStep} total={totalSteps} />
-          </motion.div>
+          </div>
         )}
 
         {/* Main Content */}

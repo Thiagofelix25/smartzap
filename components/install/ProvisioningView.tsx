@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Dna } from 'lucide-react';
 import { StepCard } from './StepCard';
 import { cn } from '@/lib/utils';
@@ -93,7 +92,7 @@ export function ProvisioningView({ data, progress, title, subtitle, onProgress, 
               const event: ProvisionStreamEvent = JSON.parse(line.slice(6));
               onProgress(event);
             } catch (parseErr) {
-              console.warn('[Provisioning] ⚠️ Erro ao parsear evento SSE:', {
+              console.warn('[Provisioning] Erro ao parsear evento SSE:', {
                 line: line.slice(0, 100),
                 error: parseErr instanceof Error ? parseErr.message : 'Erro desconhecido',
               });
@@ -130,80 +129,47 @@ export function ProvisioningView({ data, progress, title, subtitle, onProgress, 
     <StepCard glowColor="cyan">
       <div className="flex flex-col items-center text-center py-8">
         {/* Animated DNA icon - Incubation chamber */}
-        <motion.div
-          animate={{ y: [0, -8, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative"
-        >
+        <div className="relative animate-bounce" style={{ animationDuration: '3s' }}>
           {/* Outer rotating ring */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-            className="absolute inset-0 w-20 h-20 rounded-full border-2 border-[var(--br-neon-cyan)]/20 border-t-[var(--br-neon-cyan)]"
+          <div
+            className="absolute inset-0 w-20 h-20 rounded-full border-2 border-[var(--br-neon-cyan)]/20 border-t-[var(--br-neon-cyan)] animate-spin"
+            style={{ animationDuration: '4s' }}
           />
           {/* Inner rotating ring (opposite direction) */}
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-            className="absolute inset-2 w-16 h-16 rounded-full border-2 border-[var(--br-neon-magenta)]/20 border-b-[var(--br-neon-magenta)]"
+          <div
+            className="absolute inset-2 w-16 h-16 rounded-full border-2 border-[var(--br-neon-magenta)]/20 border-b-[var(--br-neon-magenta)] animate-spin"
+            style={{ animationDuration: '3s', animationDirection: 'reverse' }}
           />
           {/* Center icon */}
           <div className="w-20 h-20 flex items-center justify-center">
-            <motion.div
-              animate={{ rotate: [0, 180, 360] }}
-              transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
-            >
+            <div className="animate-spin" style={{ animationDuration: '6s' }}>
               <Dna className="w-8 h-8 text-[var(--br-neon-cyan)]" />
-            </motion.div>
+            </div>
           </div>
           {/* Glow effect */}
           <div className="absolute inset-0 w-20 h-20 rounded-full bg-[var(--br-neon-cyan)]/10 blur-xl" />
-        </motion.div>
+        </div>
 
         {/* Title */}
-        <AnimatePresence mode="wait">
-          <motion.h2
-            key={title}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="mt-6 text-xl font-mono font-bold text-[var(--br-hologram-white)] uppercase tracking-wide"
-          >
-            {title}
-          </motion.h2>
-        </AnimatePresence>
+        <h2 className="mt-6 text-xl font-mono font-bold text-[var(--br-hologram-white)] uppercase tracking-wide">
+          {title}
+        </h2>
 
         {/* Subtitle */}
-        <AnimatePresence mode="wait">
-          <motion.p
-            key={subtitle}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="mt-2 text-sm font-mono text-[var(--br-muted-cyan)] h-5"
-          >
-            {subtitle}
-          </motion.p>
-        </AnimatePresence>
+        <p className="mt-2 text-sm font-mono text-[var(--br-muted-cyan)] h-5">
+          {subtitle}
+        </p>
 
         {/* Progress bar - Blade Runner style */}
         <div className="w-full mt-8">
           <div className="h-2 bg-[var(--br-dust-gray)]/30 rounded-full overflow-hidden">
-            <motion.div
+            <div
               className={cn(
-                'h-full rounded-full',
+                'h-full rounded-full transition-[width] duration-500 ease-out',
                 'bg-gradient-to-r from-[var(--br-neon-cyan)] via-[var(--br-neon-magenta)] to-[var(--br-neon-cyan)]',
-                'bg-[length:200%_100%]'
+                'bg-[length:200%_100%] animate-[gradient-shift_2s_linear_infinite]'
               )}
-              initial={{ width: '0%' }}
-              animate={{
-                width: `${safeProgress}%`,
-                backgroundPosition: ['0% 0%', '100% 0%'],
-              }}
-              transition={{
-                width: { duration: 0.5, ease: 'easeOut' },
-                backgroundPosition: { duration: 2, repeat: Infinity, ease: 'linear' },
-              }}
+              style={{ width: `${safeProgress}%` }}
             />
           </div>
           <div className="flex justify-between mt-2 text-xs font-mono text-[var(--br-dust-gray)]">
@@ -213,13 +179,9 @@ export function ProvisioningView({ data, progress, title, subtitle, onProgress, 
         </div>
 
         {/* Warning text */}
-        <motion.p
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="mt-6 text-xs font-mono text-[var(--br-neon-orange)]"
-        >
+        <p className="mt-6 text-xs font-mono text-[var(--br-neon-orange)] animate-pulse">
           ! NÃO INTERROMPA O PROCESSO DE INCUBAÇÃO
-        </motion.p>
+        </p>
       </div>
     </StepCard>
   );

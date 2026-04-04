@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -180,11 +179,8 @@ export function IdentityForm({ data, onComplete }: FormProps) {
         </div>
 
         {password.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="mt-2 flex gap-3 text-xs font-mono"
-          >
+          <div className="mt-2 flex gap-3 text-xs font-mono">
+
             <span className={validation.checks.minLen ? 'text-[var(--br-neon-cyan)]' : 'text-[var(--br-dust-gray)]'}>
               {validation.checks.minLen ? '[OK]' : '[--]'} 8+ chars
             </span>
@@ -194,7 +190,7 @@ export function IdentityForm({ data, onComplete }: FormProps) {
             <span className={validation.checks.hasNumber ? 'text-[var(--br-neon-cyan)]' : 'text-[var(--br-dust-gray)]'}>
               {validation.checks.hasNumber ? '[OK]' : '[--]'} número
             </span>
-          </motion.div>
+          </div>
         )}
       </div>
 
@@ -222,21 +218,18 @@ export function IdentityForm({ data, onComplete }: FormProps) {
         </div>
 
         {confirmPassword.length > 0 && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={cn('mt-2 text-xs font-mono', password === confirmPassword ? 'text-[var(--br-neon-cyan)]' : 'text-[var(--br-neon-pink)]')}
-          >
+          <p className={cn('mt-2 text-xs font-mono', password === confirmPassword ? 'text-[var(--br-neon-cyan)]' : 'text-[var(--br-neon-pink)]')}>
+
             {password === confirmPassword ? '[OK] códigos correspondem' : '[!] códigos não correspondem'}
-          </motion.p>
+          </p>
         )}
       </div>
 
       {/* Error */}
       {error && (
-        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-sm font-mono text-[var(--br-neon-pink)] text-center">
+        <p className="text-sm font-mono text-[var(--br-neon-pink)] text-center">
           {'! '}{error}
-        </motion.p>
+        </p>
       )}
 
       {/* Submit */}

@@ -1,12 +1,11 @@
 'use client';
 
-import { motion, HTMLMotionProps } from 'framer-motion';
 import { ReactNode, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
 type GlowColor = 'cyan' | 'magenta' | 'orange' | 'red' | 'emerald' | 'zinc' | 'blue';
 
-interface StepCardProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
+interface StepCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   glowColor?: GlowColor;
 }
@@ -50,16 +49,8 @@ export const StepCard = forwardRef<HTMLDivElement, StepCardProps>(
     };
 
     return (
-      <motion.div
+      <div
         ref={ref}
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -20, scale: 0.95 }}
-        transition={{
-          type: 'spring',
-          stiffness: 300,
-          damping: 30,
-        }}
         className={cn(
           // Base
           'relative p-6 sm:p-8 rounded-2xl',
@@ -87,7 +78,7 @@ export const StepCard = forwardRef<HTMLDivElement, StepCardProps>(
         <div className="absolute bottom-2 right-2 w-3 h-3 border-r border-b border-[var(--br-neon-magenta)]/50" />
 
         {children}
-      </motion.div>
+      </div>
     );
   }
 );
