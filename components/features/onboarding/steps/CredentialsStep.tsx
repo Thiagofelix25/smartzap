@@ -5,6 +5,7 @@ import { ArrowRight, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StepHeader } from './StepHeader';
 import { WhatsAppCredentialsForm, type WhatsAppCredentials } from '@/components/shared/WhatsAppCredentialsForm';
+import { toast } from 'sonner';
 
 interface CredentialsStepProps {
   credentials: {
@@ -65,6 +66,26 @@ export function CredentialsStep({
 
   // Todos os campos obrigatórios preenchidos e com formato válido
   const isValid = phoneIdValid && wabaIdValid && tokenValid && appIdValid && !idsAreEqual;
+
+  const handleNext = () => {
+    if (isValid) {
+      onNext();
+      return;
+    }
+
+    // Feedback claro sobre o que está errado
+    const errors: string[] = [];
+    if (!phoneId) errors.push('Phone Number ID está vazio');
+    else if (!phoneIdValid) errors.push('Phone Number ID deve ser numérico (10-25 dígitos)');
+    if (!wabaId) errors.push('WABA ID está vazio');
+    else if (!wabaIdValid) errors.push('WABA ID deve ser numérico (10-25 dígitos)');
+    if (!token) errors.push('Token de acesso está vazio');
+    else if (!tokenValid) errors.push('Token deve começar com EAA e ter 50+ caracteres');
+    if (appId && !appIdValid) errors.push('Meta App ID deve ser numérico');
+    if (idsAreEqual) errors.push('Phone Number ID e WABA ID devem ser diferentes');
+
+    toast.error('Verifique os campos', { description: errors.join('. ') });
+  };
 
   // Adapta a interface para o componente centralizado
   const formValues: WhatsAppCredentials = {
@@ -135,7 +156,7 @@ export function CredentialsStep({
 
       {/* Ações */}
       <div className="flex justify-end pt-2">
-        <Button onClick={onNext} disabled={!isValid}>
+        <Button onClick={handleNext}>
           Próximo
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>

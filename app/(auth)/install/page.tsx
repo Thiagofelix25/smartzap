@@ -1,8 +1,6 @@
 'use client';
 
 import { useReducer, useCallback, useEffect, useRef } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { playTransition } from '@/hooks/useSoundFX';
 import {
   installReducer,
   initialState,
@@ -13,7 +11,6 @@ import {
   persistState,
   hydrateState,
   clearPersistedState,
-  createInitialState,
 } from '@/lib/installer/machine';
 import {
   InstallData,
@@ -36,25 +33,6 @@ import {
 import { ProvisioningView } from '@/components/install/ProvisioningView';
 import { SuccessView } from '@/components/install/SuccessView';
 import { ErrorView } from '@/components/install/ErrorView';
-
-// =============================================================================
-// ANIMATION VARIANTS
-// =============================================================================
-
-const stepVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 300 : -300,
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction < 0 ? 300 : -300,
-    opacity: 0,
-  }),
-};
 
 // =============================================================================
 // INITIAL STATE WITH HYDRATION
@@ -99,14 +77,10 @@ export default function InstallPage() {
     }
   }, [state]);
 
-  // Som de transição entre steps
+  // Tracking de step atual (sem som)
   useEffect(() => {
     if (isCollecting(state)) {
-      const currentStep = state.step;
-      if (prevStepRef.current !== null && prevStepRef.current !== currentStep) {
-        playTransition();
-      }
-      prevStepRef.current = currentStep;
+      prevStepRef.current = state.step;
     }
   }, [state]);
 
@@ -154,7 +128,7 @@ export default function InstallPage() {
   // ---------------------------------------------------------------------------
 
   if (isCollecting(state)) {
-    const { step, data, direction } = state; // ✅ Tudo vem do state agora
+    const { step, data } = state;
 
     const glowColors: Record<InstallStep, 'cyan' | 'magenta' | 'orange' | 'red'> = {
       1: 'cyan',
@@ -190,26 +164,9 @@ export default function InstallPage() {
 
     return (
       <InstallLayout currentStep={step} totalSteps={5}>
-        {/* Botão "Voltar" removido - já existe dentro dos forms */}
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={step}
-            custom={direction}
-            variants={stepVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              type: 'spring',
-              stiffness: 300,
-              damping: 30,
-            }}
-          >
-            <StepCard glowColor={glowColors[step]}>
-              {renderForm()}
-            </StepCard>
-          </motion.div>
-        </AnimatePresence>
+        <StepCard glowColor={glowColors[step]}>
+          {renderForm()}
+        </StepCard>
       </InstallLayout>
     );
   }

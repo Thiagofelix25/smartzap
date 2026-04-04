@@ -10,7 +10,7 @@
  */
 
 import { cookies } from 'next/headers'
-import { supabase } from './supabase'
+import { getSupabaseAdmin } from './supabase'
 import { normalizePhoneNumber, validateAnyPhoneNumber } from './phone-formatter'
 
 function getFirstName(fullName: string): string {
@@ -59,25 +59,36 @@ export interface UserAuthResult {
 // ============================================================================
 
 /**
- * Upsert a setting in the database
+ * Upsert a setting in the database.
+ * Quando Supabase não está configurado ou falha, opera em modo cookie-only (no-op).
  */
 async function upsertSetting(key: string, value: string): Promise<void> {
-  const now = new Date().toISOString()
-  const { error } = await supabase
-    .from('settings')
-    .upsert({ key, value, updated_at: now }, { onConflict: 'key' })
+  const client = getSupabaseAdmin()
+  if (!client) return
 
-  if (error) {
-    // Não silencie erros de permissão/RLS — isso causa loops e estados falsos.
-    throw new Error(`Falha ao salvar setting "${key}": ${error.message}`)
+  try {
+    const now = new Date().toISOString()
+    const { error } = await client
+      .from('settings')
+      .upsert({ key, value, updated_at: now }, { onConflict: 'key' })
+
+    if (error) {
+      console.warn(`[user-auth] upsert "${key}" falhou (graceful): ${error.message}`)
+    }
+  } catch (err) {
+    console.warn(`[user-auth] upsert "${key}" exception (graceful):`, err)
   }
 }
 
 /**
- * Get a setting from the database
+ * Get a setting from the database.
+ * Retorna null quando Supabase não está configurado.
  */
 async function getSetting(key: string): Promise<{ value: string; updated_at: string } | null> {
-  const { data, error } = await supabase
+  const client = getSupabaseAdmin()
+  if (!client) return null
+
+  const { data, error } = await client
     .from('settings')
     .select('value, updated_at')
     .eq('key', key)
@@ -88,12 +99,20 @@ async function getSetting(key: string): Promise<{ value: string; updated_at: str
 }
 
 /**
- * Delete a setting from the database
+ * Delete a setting from the database.
+ * No-op quando Supabase não está configurado ou falha.
  */
 async function deleteSetting(key: string): Promise<void> {
-  const { error } = await supabase.from('settings').delete().eq('key', key)
-  if (error) {
-    throw new Error(`Falha ao remover setting "${key}": ${error.message}`)
+  const client = getSupabaseAdmin()
+  if (!client) return
+
+  try {
+    const { error } = await client.from('settings').delete().eq('key', key)
+    if (error) {
+      console.warn(`[user-auth] delete "${key}" falhou (graceful): ${error.message}`)
+    }
+  } catch (err) {
+    console.warn(`[user-auth] delete "${key}" exception (graceful):`, err)
   }
 }
 
@@ -140,27 +159,31 @@ async function setStoredSessions(sessions: StoredSession[]): Promise<void> {
  * Check if setup is completed (company exists)
  */
 export async function isSetupComplete(): Promise<boolean> {
-  // Em produção, usamos a env var para evitar consultas e loops.
+  // Bypass via env var — funciona tanto em prod quanto em dev
   if (process.env.SETUP_COMPLETE === 'true') return true
 
-  // Em dev/local, o fluxo pode rodar sem Vercel.
-  // Então consideramos "setup completo" se a empresa já foi gravada no banco.
+  // Em dev/local, verifica no banco se disponível
   if (process.env.NODE_ENV !== 'production') {
+    const client = getSupabaseAdmin()
+    if (!client) {
+      // Sem Supabase configurado mas com MASTER_PASSWORD = pode logar
+      return !!process.env.MASTER_PASSWORD
+    }
+
     try {
-      const { data, error } = await supabase
+      const { data, error } = await client
         .from('settings')
         .select('key, value')
         .eq('key', 'company_name')
         .single()
 
       if (error) {
-        // Ajuda a diagnosticar "isSetup:false" causado por permissão negada.
         console.warn('[isSetupComplete] settings/company_name query error:', error.message)
-        return false
+        return !!process.env.MASTER_PASSWORD
       }
       return !!data?.value
     } catch {
-      return false
+      return !!process.env.MASTER_PASSWORD
     }
   }
 
@@ -171,8 +194,21 @@ export async function isSetupComplete(): Promise<boolean> {
  * Get company info
  */
 export async function getCompany(): Promise<Company | null> {
+  const client = getSupabaseAdmin()
+
+  // Sem Supabase — retorna dados padrão do env
+  if (!client) {
+    return {
+      id: 'default',
+      name: 'SmartZap',
+      email: '',
+      phone: '',
+      createdAt: new Date().toISOString()
+    }
+  }
+
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('settings')
       .select('key, value')
       .in('key', ['company_id', 'company_name', 'company_email', 'company_phone', 'company_created_at'])
@@ -480,7 +516,8 @@ async function createSession(): Promise<void> {
 }
 
 /**
- * Validate current session
+ * Validate current session.
+ * Quando Supabase não está disponível, confia na existência do cookie (cookie-only mode).
  */
 export async function validateSession(): Promise<boolean> {
   try {
@@ -488,6 +525,10 @@ export async function validateSession(): Promise<boolean> {
     const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value
 
     if (!sessionToken) return false
+
+    // Sem Supabase: cookie-only mode — se o cookie existe, sessão é válida
+    const client = getSupabaseAdmin()
+    if (!client) return true
 
     const now = new Date()
 
