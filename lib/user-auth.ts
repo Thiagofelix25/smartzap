@@ -402,7 +402,7 @@ export async function loginUser(password: string): Promise<UserAuthResult> {
   }
 
   // Check if MASTER_PASSWORD is configured
-  const masterPassword = process.env.MASTER_PASSWORD
+  const masterPassword = process.env.MASTER_PASSWORD?.trim()
   if (!masterPassword) {
     return { success: false, error: 'MASTER_PASSWORD não configurada nas variáveis de ambiente' }
   }
