@@ -333,14 +333,14 @@ export const UpdateAttendantTokenSchema = CreateAttendantTokenSchema.partial()
 export const CreateBuilderIntegrationSchema = z.object({
   type: z.string().min(1, 'Tipo de integração obrigatório'),
   name: z.string().min(1, 'Nome obrigatório').max(100),
-  config: z.record(z.any()).optional(),
-  credentials: z.record(z.string()).optional(),
+  config: z.record(z.string(), z.any()).optional(),
+  credentials: z.record(z.string(), z.string()).optional(),
 })
 
 export const UpdateBuilderIntegrationSchema = CreateBuilderIntegrationSchema.partial()
 
 export const TestBuilderIntegrationSchema = z.object({
-  config: z.record(z.any()).optional(),
-  credentials: z.record(z.string()).optional(),
-  testPayload: z.record(z.any()).optional(),
+  config: z.record(z.string(), z.any()).optional(),
+  credentials: z.record(z.string(), z.string()).optional(),
+  testPayload: z.record(z.string(), z.any()).optional(),
 })
