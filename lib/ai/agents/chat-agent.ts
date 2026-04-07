@@ -391,16 +391,20 @@ export async function processChatAgent(
     // Build system prompt: base + contact context + handoff instructions + memory context
     let systemPrompt = agent.system_prompt
 
-    // Adiciona contexto do contato (nome, email)
+    // Adiciona contexto do contato (nome, email, telefone)
     const { contactData } = config
-    if (contactData && (contactData.name || contactData.email)) {
-      const contactLines: string[] = []
-      if (contactData.name) contactLines.push(`- Nome: ${contactData.name}`)
-      if (contactData.email) contactLines.push(`- Email: ${contactData.email}`)
-      if (contactData.created_at) {
-        const date = new Date(contactData.created_at).toLocaleDateString('pt-BR')
-        contactLines.push(`- Cliente desde: ${date}`)
-      }
+    const contactLines: string[] = []
+    // Sempre injeta o telefone da conversa (essencial para agentes que usam phone-based URLs)
+    if (conversation.phone) {
+      contactLines.push(`- Telefone: ${conversation.phone}`)
+    }
+    if (contactData?.name) contactLines.push(`- Nome: ${contactData.name}`)
+    if (contactData?.email) contactLines.push(`- Email: ${contactData.email}`)
+    if (contactData?.created_at) {
+      const date = new Date(contactData.created_at).toLocaleDateString('pt-BR')
+      contactLines.push(`- Cliente desde: ${date}`)
+    }
+    if (contactLines.length > 0) {
       systemPrompt += `\n\n## Contexto do Contato\n${contactLines.join('\n')}`
     }
 
